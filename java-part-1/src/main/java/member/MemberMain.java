@@ -19,7 +19,7 @@ public class MemberMain {
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$"; // xxxx@xxxxx 형식
 
 
-    public static int printPricePlan(){
+    public int printPricePlan(){
         Scanner sc = new Scanner(System.in);
         System.out.println("[요금제를 선택하세요]");
         System.out.println("[1]Lite : 10 명 [2]Basic : 20 명 [3]Premium : 30 명");
@@ -27,7 +27,7 @@ public class MemberMain {
         return Integer.parseInt(sc.nextLine());
     }
 
-    public static int printMenu(int memberCnt) {
+    public int printMenu(int memberCnt) {
         Scanner sc = new Scanner(System.in);
         System.out.println("[수행할 업무를 선택하세요 - 현재 회원수 : " +memberCnt + "/" + totalCnt  + "]");
         System.out.println("[1]회원추가 [2]회원조회(메일) [3]회원조회(이름)");
@@ -37,35 +37,45 @@ public class MemberMain {
         return Integer.parseInt(sc.nextLine());
     }
 
-    public static void addMember(List<Member> members) {
+    public void addMember(List<Member> members) {
         String today = LocalDate.now().toString();
         File file = new File(DIR, today+ ".txt");
         StringBuilder sb = new StringBuilder();
+        String name;
+        String email;
+        String phone;
 
         System.out.println("이름을 입력해주세요.");
-        String name = sc.nextLine();
-        if(memberCnt == totalCnt){
+        name = sc.nextLine();
+        if (memberCnt == totalCnt) {
             System.out.println("회원이 꽉 찼습니다.");
             return;
         }
 
-        System.out.println("이메일을 입력해주세요.");
-        String email = sc.nextLine();
-        if(checkEmail(members, email)){
-            System.out.println("이미 존재하는 메일입니다.");
-            return;
-        }
-        if(!Pattern.matches(EMAIL_REGEX, email)){
-            System.out.println("올바르지 않은 이메일 형식입니다. abcd@efgh 형식으로 입력해주세요.");
-        }
-
-        System.out.println("핸드폰 번호를 입력해주세요.");
-        String phone = sc.nextLine();
-
-        if(Pattern.matches(PHONE_REGEX, phone)){
-            System.out.println("올바르지 않은 핸드폰 형식입니다. 숫자 01로 시작하여 총 11자리로 입력해주세요");
+        while (true) {
+            System.out.println("이메일을 입력해주세요.");
+            email = sc.nextLine();
+            if (checkEmail(members, email)) {
+                System.out.println("이미 존재하는 메일입니다.");
+                continue;
+            }
+            if (!Pattern.matches(EMAIL_REGEX, email)) {
+                System.out.println("올바르지 않은 이메일 형식입니다. abcd@efgh 형식으로 입력해주세요.");
+                continue;
+            }
+            break;
         }
 
+        while(true) {
+            System.out.println("핸드폰 번호를 입력해주세요.");
+            phone = sc.nextLine();
+
+            if (!Pattern.matches(PHONE_REGEX, phone)) {
+                System.out.println("올바르지 않은 핸드폰 형식입니다. 숫자 01로 시작하여 총 11자리로 입력해주세요");
+                continue;
+            }
+            break;
+        }
         Member newMember = new Member(name, email, phone);
         members.add(newMember);
         sb.append("이름 : ").append(name).append(" ")
@@ -82,14 +92,14 @@ public class MemberMain {
         }
     }
 
-    public static boolean checkEmail(List<Member> members, String email) {
+    public boolean checkEmail(List<Member> members, String email) {
         for (int i = 0; i < members.size(); i++) {
             if(email.equals(members.get(i).getEmail())) return true;
         }
         return false;
     }
 
-    public static void selectEmail(List<Member> members, String email){
+    public void selectEmail(List<Member> members, String email){
         for (int i = 0; i < members.size(); i++) {
             if(email.equals(members.get(i).getEmail())){
                 System.out.println("[이름] " + members.get(i).getName() +
@@ -102,7 +112,7 @@ public class MemberMain {
         System.out.println("찾으시는 정보가 없습니다.");
     }
 
-    public static void selectName(List<Member> members, String name){
+    public void selectName(List<Member> members, String name){
         boolean flag = false;
         for (int i = 0; i < members.size(); i++) {
             if(name.equals(members.get(i).getName())){
@@ -117,7 +127,7 @@ public class MemberMain {
         if(!flag) System.out.println("찾으시는 정보가 없습니다.");
     }
 
-    public static void selectAll(List<Member> members){
+    public void selectAll(List<Member> members){
         for (int i = 0; i < members.size(); i++) {   // memberCnt 까지만! (빈 칸 null 출력 방지)
             System.out.println("[이름] " + members.get(i).getName() +
                     ", [이메일] " + members.get(i).getEmail() +
@@ -125,7 +135,7 @@ public class MemberMain {
         }
         return;
     }
-    public static void updateMember(List<Member> members, String email){
+    public void updateMember(List<Member> members, String email){
         String today = LocalDate.now().toString();
         File file = new File(DIR, today+ ".txt");
         StringBuilder sb = new StringBuilder();
@@ -167,7 +177,7 @@ public class MemberMain {
         }
     }
 
-    public static void deleteMember(List<Member> members, String email){
+    public void deleteMember(List<Member> members, String email){
         String today = LocalDate.now().toString();
         File file = new File(DIR, today+ ".txt");
         StringBuilder sb = new StringBuilder();
@@ -196,7 +206,7 @@ public class MemberMain {
         }
     }
 
-    public static List<Member> loadMembersFromFile() {
+    public List<Member> loadMembersFromFile() {
         List<Member> members = new ArrayList<>();
         String today = LocalDate.now().toString();
         File file = new File(DIR, today+ ".txt");
@@ -229,37 +239,38 @@ public class MemberMain {
     public static void main(String[] args) {
         File folder = new File(DIR);
         if(!folder.exists()) folder.mkdir();
-        List<Member> members = loadMembersFromFile();
-        int num = printPricePlan();
+        MemberMain mm = new MemberMain();
+        List<Member> members = mm.loadMembersFromFile();
+        int num = mm.printPricePlan();
         memberCnt = members.size();
         //파일에서 회원 정보 읽어서 리스트로 읽어오도록 변경
         totalCnt = num * 10;
         while(true){
-            int choice = printMenu(memberCnt);
+            int choice = mm.printMenu(memberCnt);
             switch (choice){
                 case 1 :
-                    addMember(members);
+                    mm.addMember(members);
                     break;
                 case 2 :
                     System.out.println("검색하실 이메일을 입력해주세요");
                     String email = sc.nextLine();
-                    selectEmail(members, email);
+                    mm.selectEmail(members, email);
                     break;
                 case 3 :
                     System.out.println("검색하실 이름을 입력해주세요");
                     String name = sc.nextLine();
-                    selectName(members, name);
+                    mm.selectName(members, name);
                     break;
                 case 4 :
-                    selectAll(members);
+                    mm.selectAll(members);
                     break;
                 case 5 :
                     System.out.println("변경하실 정보의 이메일을 입력해주세요");
-                    updateMember(members, sc.nextLine());
+                    mm.updateMember(members, sc.nextLine());
                     break;
                 case 6 :
                     System.out.println("삭제하실 이메일을 입력해주세요");
-                    deleteMember(members, sc.nextLine());
+                    mm.deleteMember(members, sc.nextLine());
                     break;
                 case 7 :
                     System.out.println("이용해주셔서 감사합니다."); return;
