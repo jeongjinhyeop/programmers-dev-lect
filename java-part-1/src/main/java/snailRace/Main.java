@@ -7,7 +7,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         Race race = new Race();
 
-        System.out.println("난이도를 선택하세요 (1: 쉬움 | 2: 보통 | 3: 매운맛)");
+        System.out.println("난이도를 선택하세요 (1: 쉬움 | 2: 보통 | 3: 어려움)");
         System.out.print("입력 > ");
         int difficulty = Integer.parseInt(sc.nextLine());
 
