@@ -3,6 +3,8 @@ import java.util.Scanner;
 public class VendingMachine {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        //static 제거
+        VendingMachine vendingMachine = new VendingMachine();
         System.out.println("돈을 넣어주세요!");
         int money= sc.nextInt();
 
@@ -38,11 +40,13 @@ public class VendingMachine {
                 System.out.printf("잔액은 %d 입니다.", change);
                 continue;
             }
-            int price = drink(button);
+            //static 제거 후 생성한 객체 참조하도록 변경
+            int price = vendingMachine.drink(button);
             if(change < price){
                 System.out.println("잔액이 부족합니다!");
             }else {
-                change -= drink(button);
+                //static 제거 후 생성한 객체 참조하도록 변경
+                change -= vendingMachine.drink(button);
                 System.out.printf("잔액은 %d 입니다.", change);
             }
         }
@@ -52,7 +56,7 @@ public class VendingMachine {
         sc.close();
     }
 
-    public static int drink(int botton){
+    public int drink(int botton){
         if (botton == 1){
             System.out.println("콜라를 선택하셨습니다.");
             return 500;
