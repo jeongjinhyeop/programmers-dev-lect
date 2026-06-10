@@ -53,6 +53,7 @@ public class Pet {
     public void defaultCost(String name){
         fullness -= 2;
         System.out.println("시간이 흘러 " + name + "의 포만감이 감소했습니다.");
+        showStatus();
     }
 
     public String getName() {
