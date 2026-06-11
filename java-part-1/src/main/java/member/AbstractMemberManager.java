@@ -45,9 +45,13 @@ public class AbstractMemberManager {
         String today = LocalDate.now().toString();
         File file = new File(DIR, today+ ".txt");
         StringBuilder sb = new StringBuilder();
-        String name;
-        String email;
-        String phone;
+        System.out.println("등록할 회원 등급을 선택하세요. [1]일반(Normal) [2]VIP");
+        String gradeChoice = sc.nextLine();
+        AbstractMember newMember = null;
+
+        // 3. 사용자의 선택에 따라 실제 "자식 객체"를 쏙 넣어줍니다.
+
+        String name, email, phone;
 
         System.out.println("이름을 입력해주세요.");
         name = sc.nextLine();
@@ -80,7 +84,16 @@ public class AbstractMemberManager {
             }
             break;
         }
-        AbstractMember newMember = new AbstractMember(name, email, phone);
+
+        if ("1".equals(gradeChoice)) {
+            newMember = new NormalMember(name, email, phone);
+        } else if ("2".equals(gradeChoice)) {
+            newMember = new VipMember(name, email, phone);
+        } else {
+            System.out.println("잘못된 선택입니다. 기본 일반 회원으로 등록합니다.");
+            newMember = new NormalMember(name, email, phone);
+        }
+
         members.add(newMember);
         sb.append("이름 : ").append(name).append(" ")
                 .append("이메일 : ").append(email)
@@ -168,9 +181,9 @@ public class AbstractMemberManager {
         if (idx == -1) { System.out.println("찾으시는 회원이 없습니다."); return; }
 
         for (int i = 0; i < members.size(); i++) {
-            sb.append("이름 : ").append(members.get(i).name).append(" ")
-                    .append("이메일 : ").append(members.get(i).email)
-                    .append(" ").append("핸드폰 : ").append(members.get(i).phone).append("\n");
+            sb.append("이름 : ").append(members.get(i).getName()).append(" ")
+                    .append("이메일 : ").append(members.get(i).getEmail())
+                    .append(" ").append("핸드폰 : ").append(members.get(i).getPhone()).append("\n");
         }
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))){
@@ -197,9 +210,9 @@ public class AbstractMemberManager {
             }
         }
         for (int i = 0; i < members.size(); i++) {
-            sb.append("이름 : ").append(members.get(i).name).append(" ")
-                    .append("이메일 : ").append(members.get(i).email)
-                    .append(" ").append("핸드폰 : ").append(members.get(i).phone).append("\n");
+            sb.append("이름 : ").append(members.get(i).getName()).append(" ")
+                    .append("이메일 : ").append(members.get(i).getEmail())
+                    .append(" ").append("핸드폰 : ").append(members.get(i).getPhone()).append("\n");
         }
 
         try(BufferedWriter bw = new BufferedWriter(new FileWriter(file, false))){
@@ -226,11 +239,20 @@ public class AbstractMemberManager {
                 Matcher matcher = MEMBER_PATTERN.matcher(line.trim());
 
                 if (matcher.matches()) {
-                    // 정규식 괄호() 순서대로 값을 쏙쏙 뽑아옵니다.
-                    String name = matcher.group(1);  // 첫 번째 (.+?) > 이름
-                    String email = matcher.group(2); // 두 번째 (.+?) > 이메일
-                    String phone = matcher.group(3); // 세 번째 (.+?) > 핸드폰 번호
-                    members.add(new AbstractMember(name, email, phone));
+                    // 변경된 정규식 순서에 맞춰서 쏙쏙 뽑아옵니다.
+                    String grade = matcher.group(1); // 첫 번째 (.+?) > 등급 (Normal 또는 Vip)
+                    String name = matcher.group(2);  // 두 번째 (.+?) > 이름
+                    String email = matcher.group(3); // 세 번째 (.+?) > 이메일
+                    String phone = matcher.group(4); // 네 번째 (.+?) > 핸드폰 번호
+
+                    if ("VIP".equalsIgnoreCase(grade)) {
+                        members.add(new VipMember(name, email, phone));
+                    } else if ("Normal".equalsIgnoreCase(grade)) {
+                        members.add(new NormalMember(name, email, phone));
+                    } else {
+                        // 혹시 모를 예외나 기본값 처리
+                        members.add(new NormalMember(name, email, phone));
+                    }
                 }
             }
         } catch (IOException e) {

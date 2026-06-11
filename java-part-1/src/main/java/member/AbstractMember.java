@@ -1,9 +1,9 @@
 package member;
 
-public class AbstractMember {
-    String name;
-    String email;
-    String phone;
+public abstract class AbstractMember {
+    private String name;
+    private String email;
+    private String phone;
 
     public AbstractMember(String name, String email, String phone) {
         this.name = name;
@@ -35,5 +35,6 @@ public class AbstractMember {
         this.phone = phone;
     }
 
-
+    public abstract String getGrade();
+    public abstract String getDiscountRate();
 }
