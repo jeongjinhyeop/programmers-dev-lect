@@ -18,7 +18,7 @@ public class MemberManager {
     public MemberManager(int capacity) {
         this.capacity = capacity;
         this.members = new ArrayList<>();
-        this.file = new File("members.txt");
+        this.file = new File("./members.txt");
         loadFromFile();
     }
 

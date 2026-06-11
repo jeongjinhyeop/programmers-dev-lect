@@ -1,41 +1,28 @@
 package abstractMember;
 
-public abstract class Member implements Comparable<Member> {
-    protected String name;
-    protected String email;
-    protected String phone;
+public interface Member extends Comparable<Member> {
 
-    public Member(String name, String email, String phone) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
+    String getName();
+    String getEmail();
+    String getPhone();
+
+    String getGrade();
+    String getBenefit();
+    int getMonthlyFee();
+
+    default void printInfo() {
+        System.out.println("[" + getGrade() + "] " + getName() + " / " + getEmail()
+                + " / " + getPhone() + " (혜택: " + getBenefit() + ")");
     }
 
-    public String getName()  { return name; }
-    public String getEmail() { return email; }
-    public String getPhone() { return phone; }
+    void update(String name, String email, String phone);
 
-    public abstract String getGrade();
-    public abstract String getBenefit();
-    public abstract int getMonthlyFee();
-
-    public void printInfo() {
-        System.out.println("[" + getGrade() + "] " + name + " / " + email
-                + " / " + phone + " (혜택: " + getBenefit() + ")");
-    }
-
-    public void update(String name, String email, String phone) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-    }
-
-    public String toFileString() {
-        return String.format("등급:%s,이름:%s,이메일:%s,연락처:%s\n", getGrade(), name, email, phone);
+    default String toFileString() {
+        return String.format("등급:%s,이름:%s,이메:%s,연락처:%s\n", getGrade(), getName(), getEmail(), getPhone());
     }
 
     @Override
-    public int compareTo(Member o) {
-        return this.name.compareTo(o.name);
+    default int compareTo(Member o) {
+        return this.getName().compareTo(o.getName());
     }
 }

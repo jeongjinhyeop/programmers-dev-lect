@@ -1,8 +1,36 @@
 package abstractMember;
 
-public class VipMember extends Member {
+public class VipMember implements Member {
+    private String name;
+    private String email;
+    private String phone;
+
     public VipMember(String name, String email, String phone) {
-        super(name, email, phone); // 부모 생성자 호출
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public String getPhone() {
+        return phone;
+    }
+
+    @Override
+    public void update(String name, String email, String phone) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
     }
 
     @Override
@@ -15,4 +43,6 @@ public class VipMember extends Member {
     public int getMonthlyFee() {
         return 19900;
     }
+
+
 }
