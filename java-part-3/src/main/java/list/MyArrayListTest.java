@@ -2,7 +2,7 @@ package list;
 
 import java.util.Arrays;
 
-public class A_collections_list_ex_array {
+public class MyArrayListTest {
     public static void main(String[] args) {
         MyArrayList list = new MyArrayList();
 
