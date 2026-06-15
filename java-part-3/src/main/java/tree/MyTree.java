@@ -84,8 +84,27 @@ public class MyTree {
 
             if (current.left != null) q.add(current.left);
             if (current.right != null) q.add(current.right);
+        }
+    }
 
+    public void search(){
 
+    }
+    public boolean search(int value){
+        Node foundNode = searchNode(root, value);
+
+        return foundNode != null;
+    }
+
+    private Node searchNode(Node node, int value){
+        if(node == null || node.value == value){
+            return node;
+        }
+
+        if(value < node.value) {
+            return searchNode(node.left, value);
+        } else {
+            return searchNode(node.right, value);
         }
     }
 
