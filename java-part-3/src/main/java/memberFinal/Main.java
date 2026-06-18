@@ -5,16 +5,18 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
-        System.out.println("[1]Lite:10 [2]Basic:20 [3]Premium:30");
-        PricePlan pricePlan = null;
+        //첫줄에서 요금제 가져오기
+        PricePlan pricePlan = MemberManager.peekPricePlan();
         while (pricePlan == null){
+            System.out.println("[1]Lite:10 [2]Basic:20 [3]Premium:30");
             pricePlan =PricePlan.from(readInt(sc));
             if (pricePlan == null) {
                 System.out.println("1~3 중 선택하세요");
             }
         }
+
         MemberManager manager = new MemberManager(pricePlan.getCapacity());
+
 
         while(true) {
             System.out.println("\n[현재 " + manager.getSize() + "/" + manager.getCapacity() + "]");
@@ -73,8 +75,8 @@ public class Main {
                 }
                 case 5: {
                     System.out.print("기존 이메일 > "); String email = sc.nextLine();
-                    if (manager.existsEmail(email)) {
-                        System.out.println("이미 존재하는 이메일입니다.");
+                    if (manager.findByEmail(email) == null) {
+                        System.out.println("해당 메일로 존재하는 회원이 없습니다.");
                         break;
                     }
                     System.out.print("이름 > ");   String name  = sc.nextLine();
@@ -94,7 +96,9 @@ public class Main {
                     }
                     break;
                 }
-                case 7: System.out.println("이용해주셔서 감사합니다."); return;
+                case 7:
+                    manager.save(pricePlan);
+                    System.out.println("이용해주셔서 감사합니다."); return;
                 default: System.out.println("1~7 중에서 선택하세요.");
             }
         }

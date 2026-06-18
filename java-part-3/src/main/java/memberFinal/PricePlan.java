@@ -9,7 +9,6 @@ public enum PricePlan {
     public int getCapacity(){
         return capacity;
     }
-
     public static PricePlan from(int choice) {
         switch (choice){
             case 1: return LITE;

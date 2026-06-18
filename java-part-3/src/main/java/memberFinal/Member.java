@@ -14,6 +14,10 @@ public interface Member {
     }
 
     default String toFileString() {
-        return getGrade() + "," + getName() + "," + getEmail() + "," + getPhone();
+        String safeGrade = CsvUtil.escapeCsvField(getGrade());
+        String safeName  = CsvUtil.escapeCsvField(getName());
+        String safeEmail = CsvUtil.escapeCsvField(getEmail());
+        String safePhone = CsvUtil.escapeCsvField(getPhone());
+        return String.join(",", safeGrade, safeName, safeEmail, safePhone);
     }
 }

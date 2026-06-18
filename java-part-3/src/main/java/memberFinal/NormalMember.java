@@ -4,6 +4,7 @@ public class NormalMember implements Member {
     private String name;
     private String email;
     private String phone;
+
     public NormalMember (String name, String email, String phone){
         this.name = name;
         this.email = email;
