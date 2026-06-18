@@ -1,6 +1,8 @@
 package memberFinal;
 
-public interface Member {
+import java.io.Serializable;
+
+public interface Member extends Serializable {
     String getName();
     String getEmail();
     String getPhone();

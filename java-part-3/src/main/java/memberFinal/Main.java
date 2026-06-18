@@ -5,17 +5,22 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        //첫줄에서 요금제 가져오기
-        PricePlan pricePlan = MemberManager.peekPricePlan();
-        while (pricePlan == null){
-            System.out.println("[1]Lite:10 [2]Basic:20 [3]Premium:30");
-            pricePlan =PricePlan.from(readInt(sc));
-            if (pricePlan == null) {
-                System.out.println("1~3 중 선택하세요");
-            }
-        }
 
-        MemberManager manager = new MemberManager(pricePlan.getCapacity());
+        MemberManager manager = MemberManager.load();
+
+        if (manager == null) {
+            PricePlan pricePlan = null;
+            while (pricePlan == null) {
+                System.out.println("[1]Lite:10 [2]Basic:20 [3]Premium:30");
+                pricePlan = PricePlan.from(readInt(sc));
+
+                if (pricePlan == null) {
+                    System.out.println("1~3 중 선택하세요");
+                }
+            }
+
+            manager = new MemberManager(pricePlan);
+        }
 
 
         while(true) {
@@ -97,7 +102,7 @@ public class Main {
                     break;
                 }
                 case 7:
-                    manager.save(pricePlan);
+                    manager.save();
                     System.out.println("이용해주셔서 감사합니다."); return;
                 default: System.out.println("1~7 중에서 선택하세요.");
             }

@@ -1,20 +1,21 @@
 package memberFinal;
 
+import java.nio.file.*;
 import java.util.*;
 import java.io.*;
 
 public class MemberManager {
     private final List<Member> members = new ArrayList<>();
-    private final int capacity;
+//    private final int capacity;
+    private PricePlan pricePlan;
     private static final String FILE = "members.txt";
 
-    public  MemberManager (int capacity) {
-        this.capacity = capacity;
-        load();
+    public  MemberManager (PricePlan pricePlan) {
+        this.pricePlan = pricePlan;
     }
 
     public boolean isFull(){
-        return  members.size() >= capacity;
+        return  members.size() >= pricePlan.getCapacity();
     }
 
     public boolean existsEmail(String email){
@@ -36,7 +37,11 @@ public class MemberManager {
     }
 
     public int getCapacity() {
-        return capacity;
+        return pricePlan.getCapacity();
+    }
+
+    public PricePlan getPricePlan(){
+        return pricePlan;
     }
 
     public Member findByEmail(String email){
@@ -80,45 +85,77 @@ public class MemberManager {
         return true;
     }
 
-    public void save(PricePlan pricePlan) {
-        try (FileWriter fw = new FileWriter(FILE)) {   // true 없음 = 덮어쓰기
-            fw.write(pricePlan.name() + "\n");
-            for (Member m : members) {
-                fw.write(m.toFileString() + "\n");
+//    public void save(PricePlan pricePlan) {
+//        try (FileWriter fw = new FileWriter(FILE)) {   // true 없음 = 덮어쓰기
+//            fw.write(pricePlan.name() + "\n");
+//            for (Member m : members) {
+//                fw.write(m.toFileString() + "\n");
+//            }
+//        } catch (IOException e) {
+//            System.out.println("저장 오류: " + e.getMessage());
+//        }
+//    }
+
+    public void save(){
+        File originFile = new File(FILE);
+        if (originFile.exists()) {
+            try {
+                Path source = originFile.toPath();
+                Path target = Paths.get("members.bak"); // 백업 파일명 (.bak)
+
+                // StandardCopyOption.REPLACE_EXISTING : 이미 이전 백업 파일이 있다면 덮어씁니다.
+                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                System.out.println("백업 파일 생성 실패: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println("저장 오류: " + e.getMessage());
+        }
+        try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE))){
+            oos.writeObject(pricePlan);
+            oos.writeObject(members);
+        }catch (IOException e){
+            System.out.println("저장 오류");
         }
     }
 
-    public void load() {
+
+    /*public static void load(){
         File file = new File(FILE);
-        if (!file.exists()) return;   // 처음 실행이면 파일이 없음
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-//            String firstLine = br.readLine(); // 요금제 불러올것이라 생각한 부분
-//            PricePlan savedPricePlan = null;
-//            if (firstLine != null && !firstLine.isBlank()) {
-//                savedPricePlan = PricePlan.valueOf(firstLine.trim());
-//            }
-            br.readLine();//첫 줄 건너뛰
-            while ((line = br.readLine()) != null) {
-                if (line.isBlank()) continue;
-                String[] p = line.split(",");       // [등급, 이름, 이메일, 연락처]
-                String grade = CsvUtil.deEscapeCsvField(p[0]);
-                String name  = CsvUtil.deEscapeCsvField(p[1]);
-                String email  = CsvUtil.deEscapeCsvField(p[2]);
-                String phone  = CsvUtil.deEscapeCsvField(p[3]);;
-//                String grade = p[0], name = p[1], email = p[2], phone = p[3];
-
-                Member m = grade.equals("VIP")
-                        ? new VipMember(name, email, phone)
-                        : new NormalMember(name, email, phone);
-                members.add(m);
+        if(!file.exists()){
+            return;
+        }
+        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))){
+            PricePlan savedPricePlan = (PricePlan) ois.readObject();
+            List<Member> savedMembers = (List<Member>) ois.readObject();
+            this.members.clear();
+            if(savedMembers != null){
+                this.members.addAll(savedMembers);
             }
-        } catch (IOException e) {
-            System.out.println("불러오기 오류: " + e.getMessage());
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("불러오기 오류");
+        }
+    }*/
+
+    public static MemberManager load() {
+        File file = new File(FILE);
+
+        if (!file.exists()) {
+            return null;
+        }
+
+        try (ObjectInputStream ois =
+                     new ObjectInputStream(new FileInputStream(file))) {
+
+            PricePlan savedPricePlan = (PricePlan) ois.readObject();
+            List<Member> savedMembers = (List<Member>) ois.readObject();
+
+            MemberManager manager = new MemberManager(savedPricePlan);
+            manager.members.addAll(savedMembers);
+
+            return manager;
+
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("불러오기 오류");
+            return null;
         }
     }
 
