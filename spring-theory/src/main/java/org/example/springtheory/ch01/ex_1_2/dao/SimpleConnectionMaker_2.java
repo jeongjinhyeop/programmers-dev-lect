@@ -4,11 +4,9 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class SimpleConnectionMaker {
-    public Connection makeNewConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/springtheory", "root", "1q2w3e4r5t^^");
-
-        return conn;
-    }
+// interface를 사용하는 UserDAO 입장에서
+// 어떤 클래스로 만들어졌는지 상관없이 makeNewConnection를 호출하면
+// Connection 타입의 오브젝트를 돌려줄 것이라고 기대할 수 있다.
+public interface SimpleConnectionMaker_2 {
+    Connection makeNewConnection() throws ClassNotFoundException, SQLException;
 }

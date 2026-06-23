@@ -1,6 +1,8 @@
-package org.example.springtheory.ch01.ex_1_2.dao;
+package org.example.springtheory.ch01.ex_1_3.dao;
 
 import org.example.springtheory.ch01.ex_1_1.domain.User;
+import org.example.springtheory.ch01.ex_1_2.dao.DConnectionsMaker_2;
+import org.example.springtheory.ch01.ex_1_2.dao.SimpleConnectionMaker_2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,25 +10,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 // * 문제점
-// 단지 커넥션 객체를 가져오는 방법을 분리하기 위해 상속구조를 만들어버리면,
-// 후에 다른 목적으로 UserDAO에 상속을 적용하기 힘들다.
-// 또 다른 문제는 상속을 통한 상하위 클래스의 관계는 생각보다 밀접하다는 점이다.
-// 상속관계는 두 가지 다른 관심사에 대해 긴밀한 결합을 허용한다.
-// 서브클래스는 슈퍼클래스의 기능을 직접 사용할 수 있다.
-// 그래서 슈퍼클래스 내부의 변경이 있을 때 모든 서브클래스를 함께 수정하거나
-// 다시 개발해야할 수 있다.
-// 확장된 기능인 DB커넥션을 생성하는 코드를 다른 DAO 클래스에 적용할 수 없다
+// UserDAO의 다른 모든 곳에서는 인터페이스를 이용하게 만들어서
+// DB커넥션을 제공하는 클래스에 대한 구체적인 정보는 모두 제거했지만,
+// 초기에 한 번 어떤 클래스의 오브젝트를 사용할지를 결정하는 모든 생성자의 코드는 제거되지 않고 남아 있다. > 생성자 주입?
+// 여전히 UserDAO 소스코드를 함께 제공해서,
+// 필요할 때마다  UserDAO의 생성자 메서드를 직접 수정하라고 하지 않고는
+// 고객에게 자유로운 DB커넥션 확장 기능을 가진 UserDAO를 제공할 수 없다.
 
-// "클래스의 분리"
-// DB 커넥션과 관련된 부분을 서브클래스가 아니라, 아예 별도의 클래스에 담는다.
+// "관계설정 책임의 분리"
 
 
-public abstract class UserDAO_2 {
+public class UserDAO {
 
-    private SimpleConnectionMaker_2 simpleConnectionMaker;
+    private SimpleConnectionMaker simpleConnectionMaker;
 
-    public UserDAO_2() {
-        simpleConnectionMaker = new DConnectionsMaker_2();
+    public UserDAO(SimpleConnectionMaker simpleConnectionMaker)
+    {
+        this.simpleConnectionMaker = simpleConnectionMaker;
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
@@ -71,6 +71,4 @@ public abstract class UserDAO_2 {
     // UserDAO의 기능과 함께 사용할 수 있다.
     // 기존에는 같은 클래스에 다른 메서드로 분리됐던 DB 커넥션 연결이라는 관심을
     // 이번에는 상속을 통해 서브클래스로 분리해버리는 것이다.
-    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
-
 }

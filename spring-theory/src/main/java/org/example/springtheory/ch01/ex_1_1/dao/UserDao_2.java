@@ -4,19 +4,13 @@ import org.example.springtheory.ch01.ex_1_1.domain.User;
 
 import java.sql.*;
 
-public class UserDao {
+public class UserDao_2 {
     public  void add(User user) throws ClassNotFoundException, SQLException {
-        // JDBC 드라이버를 메모리에 로딩하는 코드이다.
-        // com.mysql.cj.jdbc.Driver 는 MySQL 드라이버 클래스의 전체 이름이다.
-        // Class.forName(...)은 해당 이름의 클래스를 찾아 메모리에 적재(로딩)한다.
-        // 이 클래스가 로딩될 때 내부적으로 DriverManager에 자기 자신을 자동 등록한다.
-        // → 등록이 되어야 아래 DriverManager.getConnection(...)으로 DB에 연결할 수 있다.
-        // (참고: JDBC 4.0+ 부터는 자동 등록되어 생략 가능하지만, 동작 원리 이해를 위해 작성한다.)
-        Class.forName("com.mysql.cj.jdbc.Driver");
+
         String query = "INSERT INTO users (id, name, password) VALUES (?, ?, ?)";
 
         try(
-                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/springtheory", "root", "1q2w3e4r5t^^");
+                Connection conn = getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(query);
                 ){
             pstmt.setString(1, user.getId());
@@ -32,7 +26,7 @@ public class UserDao {
         String query = "SELECT * FROM users WHERE id = ?";
 
         try (
-                Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/springtheory", "root", "1234");
+                Connection conn = getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(query);
         ) {
             pstmt.setString(1, id);
@@ -47,5 +41,13 @@ public class UserDao {
 
             return user;
         }
+    }
+    //중복 코드의 메서드 추출 -> '메서드 추출'
+    //리팩토링
+    private Connection getConnection() throws ClassNotFoundException, SQLException{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/springtheory", "root", "1q2w3e4r5t^^");
+
+        return conn;
     }
 }

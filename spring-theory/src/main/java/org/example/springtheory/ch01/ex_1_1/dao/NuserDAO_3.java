@@ -1,4 +1,15 @@
 package org.example.springtheory.ch01.ex_1_1.dao;
 
-public class DuserDAO_3 {
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class NuserDAO_3 extends UserDao_3 {
+
+    @Override
+    public Connection getConnection() throws ClassNotFoundException, SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/springtheory", "root", "1q2w3e4r5t^^");
+
+        return null;
+    }
 }

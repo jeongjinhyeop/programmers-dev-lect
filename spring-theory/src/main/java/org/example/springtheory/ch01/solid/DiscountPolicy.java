@@ -1,4 +1,5 @@
 package org.example.springtheory.ch01.solid;
 
-public class DiscountPolicy {
+public interface DiscountPolicy {
+    int discount(int price);
 }

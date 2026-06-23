@@ -1,7 +1,7 @@
 package org.example.springtheory.ch01.solid;
 
-public class GoldDiscount implements DiscountPolicy{
+public class SilverDiscount implements DiscountPolicy{
     public int discount(int price) {
-        return price * 90 / 100;
+        return price * 85 / 100;
     }
 }

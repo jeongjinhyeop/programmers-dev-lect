@@ -1,6 +1,6 @@
 package org.example.springtheory.ch01.solid;
 
-public interface Machine {
-
+public interface Printer {
+    void print();
 
 }

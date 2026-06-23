@@ -1,0 +1,13 @@
+package org.example.springtheory;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class SpringTheoryApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+
+}
