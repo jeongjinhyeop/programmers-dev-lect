@@ -1,6 +1,5 @@
 package org.example.springtheory.ch05.ex_5_1.dao;
 
-import org.example.springtheory.ch05.ex_5_1.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

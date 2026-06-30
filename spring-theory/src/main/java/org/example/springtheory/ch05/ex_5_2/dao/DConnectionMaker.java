@@ -1,9 +1,5 @@
 package org.example.springtheory.ch05.ex_5_1.dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 public class DConnectionMaker {
     public class DConnectionMaker implements SimpleConnectionMaker {
         @Override
