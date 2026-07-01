@@ -1,4 +1,4 @@
-package org.example.springtheory.ch06.ex_6_2.service;
+package org.example.springtheory.ch06.ex_6_3.service;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
