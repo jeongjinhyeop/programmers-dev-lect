@@ -2,8 +2,6 @@ package org.example.springtheory.ch06.ex_6_2.dao;
 
 import com.zaxxer.hikari.pool.ProxyFactory;
 import org.example.springtheory.ch06.ex_6_2.service.TransactionAdvice;
-import org.example.springtheory.ch06.ex_6_2.service.TransactionHandler;
-import org.example.springtheory.ch06.ex_6_2.service.UserService;
 import org.example.springtheory.ch06.ex_6_2.service.UserServiceImpl;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;

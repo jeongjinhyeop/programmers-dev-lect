@@ -1,5 +1,7 @@
 package org.example.springtheory.ch02.ex_2_1.dao;
 
+import org.example.springtheory.ch02.ex_2_1.dao.SimpleConnectionMaker;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

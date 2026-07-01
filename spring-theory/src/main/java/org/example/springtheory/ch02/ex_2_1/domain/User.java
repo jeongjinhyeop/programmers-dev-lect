@@ -1,4 +1,4 @@
-package org.example.springtheory.ch01.ex_1_6.domain;
+package org.example.springtheory.ch02.ex_2_1.domain;
 
 public class User {
     private String id;

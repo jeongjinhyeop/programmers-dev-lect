@@ -1,8 +1,8 @@
 package org.example.springtheory.ch06.ex_6_4.service;
 
+import io.micrometer.common.lang.Nullable;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.jspecify.annotations.Nullable;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;

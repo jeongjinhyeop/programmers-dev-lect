@@ -30,6 +30,7 @@ public class DaoFactory {
                 getClass().getClassLoader(),    // (1) 프록시 클래스를 적재할 클래스로더
                 new Class[]{UserService.class}, // (2) 프록시가 구현(흉내)할 인터페이스
                 txHandler                       // (3) 호출을 받아 처리할 핸들러
+                //txHandler를
         );
     }
 

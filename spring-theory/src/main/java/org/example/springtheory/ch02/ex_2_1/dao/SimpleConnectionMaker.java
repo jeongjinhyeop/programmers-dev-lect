@@ -1,4 +1,4 @@
-package org.example.springtheory.ch01.ex_1_6.dao;
+package org.example.springtheory.ch02.ex_2_1.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;

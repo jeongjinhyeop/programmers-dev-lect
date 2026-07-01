@@ -1,4 +1,4 @@
-package org.example.springtheory.ch01.ex_1_6.dao;
+package org.example.springtheory.ch02.ex_2_1.dao;
 
 
 // * 문제점?
@@ -54,7 +54,7 @@ public class DaoFactory {
     }
     @Bean
     public SimpleConnectionMaker connectionMaker() {
-        return new DConnectionsMaker();
+        return new DConnectionMaker();
     }
 
 }
