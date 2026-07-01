@@ -1,11 +1,11 @@
-package org.example.springtheory.ch05.ex_5_2.dao;
+package org.example.springtheory.ch05.ex_5_3.dao;
 
 // * 레벨 관리를 위해 확장된 UserDAO
 // - 등록(add)/수정(update),조회(get/getAll/getCount)를 제공한다.
 // - 모든 메서드는 직접 커넥션을 다루지 않고, 변하지 않는 흐름은 JdbcContext에 맡긴다.
 // (실행계 SQL은 StatementStrategy, 조회 결과 매핑은 RowMapper로 분리)
 
-import org.example.springtheory.ch05.ex_5_2.domain.User;
+import org.example.springtheory.ch05.ex_5_3.domain.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -1,6 +1,6 @@
-package org.example.springtheory.ch05.ex_5_2.domain;
+package org.example.springtheory.ch05.ex_5_3.domain;
 
-import org.example.springtheory.ch05.ex_5_2.dao.Level;
+import org.example.springtheory.ch05.ex_5_3.dao.Level;
 
 // 사용자 정보를 저장할 User클래스
 public class User {

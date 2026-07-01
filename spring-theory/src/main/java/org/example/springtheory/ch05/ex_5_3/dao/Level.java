@@ -1,4 +1,4 @@
-package org.example.springtheory.ch05.ex_5_2.dao;
+package org.example.springtheory.ch05.ex_5_3.dao;
 
 public enum Level {
 

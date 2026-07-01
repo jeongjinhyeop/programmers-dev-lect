@@ -1,4 +1,4 @@
-package org.example.springtheory.ch05.ex_5_1.service;
+package org.example.springtheory.ch05.ex_5_2.service;
 
 // * UserService - 사용자 레벨 관리 '비즈니스 로직'을 담는 계층
 
@@ -8,26 +8,48 @@ package org.example.springtheory.ch05.ex_5_1.service;
 // -> 이 둘을 한 클래스에 두면 책임이 섞인다(SRP 위반). 그래서 서비스 계층으로 분리한다.
 // - UserService는 UserDAO에 의존하되, 인터페이스가 아니라 구현을 직접 쓰더라도 DI로 주입받는다.
 
-import org.example.springtheory.ch05.ex_5_1.dao.Level;
-import org.example.springtheory.ch05.ex_5_1.dao.UserDAO;
-import org.example.springtheory.ch05.ex_5_1.domain.User;
+import org.example.springtheory.ch05.ex_5_2.dao.Level;
+import org.example.springtheory.ch05.ex_5_2.dao.UserDAO;
+import org.example.springtheory.ch05.ex_5_2.domain.User;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.SQLException;
 import java.util.List;
 
-// [업그레이드 규칙]
-//  - BASIC  + 로그인 50회 이상  -> SILVER
-//  - SILVER + 추천 30회 이상    -> GOLD
-//  - GOLD   -> 더 이상 업그레이드 없음
+// * UserService - 사용자 레벨 관리 '비즈니스 로직'을 담는 계층
+// [트랜잭션 추상화로 가는 3단계]
+//  1단계) 직접 JDBC 트랜잭션:
+//     UserService가 Connection을 만들어 setAutoCommit(false) -> commit/rollback 하고,
+//     그 Connection을 DAO 메서드마다 파라미터로 넘긴다.
+//     문제: (a) 서비스가 JDBC API(Connection)에 종속된다.
+//           (b) DAO 메서드 시그니처가 Connection으로 더럽혀진다(계층 침범).
+//           (c) JDBC 전용이라 JPA/JTA로 바꾸면 코드를 다 고쳐야 한다.
+//
+//  2단계) 트랜잭션 동기화:
+//     Connection을 파라미터로 넘기지 않고 '동기화 저장소'에 묶어두면,
+//     DAO는 DataSourceUtils.getConnection()으로 같은 커넥션을 알아서 가져온다(JdbcContext가 이미 적용).
+//     -> DAO 시그니처는 깨끗해졌지만, 여전히 'JDBC(DataSource)' 전용이다.
+//
+//  3단계) 트랜잭션 추상화 (이 코드):
+//     스프링이 제공하는 PlatformTransactionManager 인터페이스에만 의존한다.
+//     -> 실제 구현(DataSourceTransactionManager=JDBC, JpaTransactionManager=JPA,
+//        JtaTransactionManager=분산 트랜잭션)은 설정에서 갈아 끼우면 된다.
+//     -> UserService 코드는 기술이 바뀌어도 그대로다. 이것이 '서비스 추상화'다.
 public class UserService {
 
-    // 업그레이드 기준값을 상수로 둔다.
-    //  - 매직 넘버(50, 30)를 코드 곳곳에 흩지 않고 한곳에서 의미를 드러낸다.
-    //  - 기준이 바뀌면 여기만 고치면 된다(변경 지점의 집중).
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
 
     private UserDAO userDAO;
+    private PlatformTransactionManager transactionManager;
+
+    public UserService(UserDAO userDAO, PlatformTransactionManager transactionManager) {
+        this.userDAO = userDAO;
+        this.transactionManager = transactionManager;
+    }
+
 
     public UserService(UserDAO userDAO) {
         this.userDAO = userDAO;
@@ -40,20 +62,28 @@ public class UserService {
     }
 
     // 업그레이드 담당
+    // 여러 사용자 업그레이드를 '하나의 트랜잭션'으로 묶는다.
+    // 트랜잭션 경계 설정
+    // 트랜잭션의 시작을 선언하고 commit 또는 rollback으로 트랜잭션을 종료하는 작업
     public void upgradeLevels() throws SQLException, ClassNotFoundException {
-        List<User> users = userDAO.getAll();
-        for ( User user : users ) {
-            if ( canUpgrade(user) ) {
-                upgradeLevel(user);
+        // 1) 트랜잭션 시작 (어떤 기술인지 모른 채, 추상화된 매니저에게 맡긴다)
+        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        try {
+            // 2) 비즈니스 로직 수행 (이 안의 모든 update가 같은 트랜잭션에 묶인다)
+            List<User> users = userDAO.getAll();
+            for ( User user : users ) {
+                if ( canUpgrade(user) ) {
+                    upgradeLevel(user);
+                }
             }
+            // 3) 전부 성공하면 커밋
+            transactionManager.commit(status);
+        } catch (Exception e) {
+            // 4) 중간에 하나라도 실패하면 전부 취소(롤백) -> 원자성 보장
+            transactionManager.rollback(status);
+            // 복구 불가한 예외이므로 런타임 예외로 전환해 알린다(ch04에서 배운 예외 전환).
+            throw new RuntimeException("레벨 업그레이드 중 오류가 발생해 롤백했습니다.", e);
         }
-
-        // [짚고 넘어갈 점 -> 다음 단계 추상화]
-        //  이 반복 도중 중간에서 예외가 나면, 앞쪽 사용자는 이미 update 되고 뒤쪽은 안 된 채로 끝난다.
-        //  '전부 성공 아니면 전부 취소(원자성)'가 보장되지 않는 것이다.
-        //  -> 이를 해결하는 것이 '트랜잭션'이고, 스프링이 이를 기술과 무관하게 다루도록 해주는 것이
-        //     바로 5장의 핵심인 '트랜잭션 서비스 추상화'다. (이어지는 예제에서 다룬다)
-
     }
 
     // '올릴 수 있는가'

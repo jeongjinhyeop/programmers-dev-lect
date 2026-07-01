@@ -1,6 +1,8 @@
-package org.example.springtheory.ch05.ex_5_2.dao;
+package org.example.springtheory.ch05.ex_5_3.dao;
 
-import org.example.springtheory.ch05.ex_5_2.service.UserService;
+import org.example.springtheory.ch05.ex_5_3.service.UserService;
+import org.example.springtheory.ch05.ex_5_3.service.UserServiceImpl;
+import org.example.springtheory.ch05.ex_5_3.service.UserServiceTx;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -8,12 +10,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 // DaoFactory를 스프링 빈 팩토리가 사용할 수 있는 설정정보로 리팩토링
 @Configuration // 애플리케이션 컨텍스트 또는 빈 팩토리가 사용할 설정 정보라는 표시
@@ -21,7 +17,12 @@ public class DaoFactory {
 
     @Bean
     public UserService userService() {
-        return new UserService(userDAO());
+        return new UserServiceTx( transactionManager(), userServiceImpl() );
+    }
+
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userDAO());
     }
 
     @Bean // 오브젝트 생성을 담당하는 IoC용 메서드라는 표시
