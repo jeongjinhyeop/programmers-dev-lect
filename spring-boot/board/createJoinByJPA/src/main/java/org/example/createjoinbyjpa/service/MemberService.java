@@ -1,0 +1,28 @@
+package org.example.createjoinbyjpa.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.createjoinbyjpa.domain.entity.Member;
+import org.example.createjoinbyjpa.domain.repository.MemberRepository;
+import org.example.createjoinbyjpa.dto.MemberJoinRequestDto;
+import org.example.createjoinbyjpa.dto.MemberJoinResponseDto;
+import org.example.createjoinbyjpa.exception.DuplicateUserIdException;
+import org.example.createjoinbyjpa.mapper.MemberMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class MemberService {
+
+    private final MemberRepository memberRepository;
+    private final MemberMapper memberMapper;
+
+    @Transactional
+    public void join(MemberJoinRequestDto request) {
+        if(memberRepository.existsByUserId(request.getUserId())) {
+            throw new DuplicateUserIdException("이미 존재하는 아이디입니다.");
+        }
+        Member member = memberMapper.toEntity(request);
+        memberRepository.save(member);
+    }
+}
