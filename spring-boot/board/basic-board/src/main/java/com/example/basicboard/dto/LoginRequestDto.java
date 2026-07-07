@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class LoginRequestDto {
-    private String userName;
+    //N 소문자로 변경
+    private String username;
     private String password;
 
 }
