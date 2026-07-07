@@ -90,10 +90,9 @@ public class MemberService {
         //     return Optional.empty();          // 실패: 빈 Optional 반환
         //
         //   => 위 if 분기(널 체크 + 비밀번호 비교)를 .filter(람다) 한 줄로 압축한 것이 아래 코드다
-
-        return memberRepository.findByUserId(dto.getUserName())
-                .filter(
-                        member -> member.getPassword().equals(dto.getPassword())
-                );
+        return memberRepository.findByUserId(dto.getUsername())
+                .filter(member -> {
+                    return member.getPassword().equals(dto.getPassword());
+                });
     }
 }
