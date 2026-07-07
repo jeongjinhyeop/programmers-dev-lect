@@ -7,7 +7,7 @@ $(document).ready(() => {
         let password = $('#password').val();
 
         let formData = {
-            username : userId,
+            userId : userId,
             password : password
         }
 
@@ -28,9 +28,11 @@ $(document).ready(() => {
             },
             error: (error) => {
                 // 실패 시 실행될 콜백 함수
-                console.error('오류 발생:', error);
-                alert(error.responseJSON.message);
-                window.location.href = error.responseJSON.url;
+                let errorMsg = (error.responseJSON && error.responseJSON.message)
+                    ? error.responseJSON.message
+                    : "서버 통신 중 오류가 발생했습니다.";
+                alert(errorMsg);
+                // window.location.href = error.responseJSON.url;
             }
         });
 
