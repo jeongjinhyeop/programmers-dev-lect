@@ -32,4 +32,13 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponseDto(HttpStatus.CONFLICT.value(), e.getMessage()));
     }
+
+    @ExceptionHandler(BoardNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> boardNotFoundException(BoardNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        new ErrorResponseDto(HttpStatus.NOT_FOUND.value(), e.getMessage())
+                );
+    }
 }
