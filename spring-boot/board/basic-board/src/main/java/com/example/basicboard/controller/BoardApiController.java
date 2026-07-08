@@ -4,6 +4,7 @@ import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.dto.BoardResponseDto;
 import com.example.basicboard.service.BoardService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,5 +36,10 @@ public class BoardApiController {
                 .last(last)
                 .totalPages(totalPages)
                 .build();
+    }
+
+    @PostMapping
+    public void saveBoard(){
+
     }
 }
