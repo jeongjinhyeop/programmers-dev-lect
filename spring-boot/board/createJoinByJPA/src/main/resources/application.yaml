@@ -5,3 +5,17 @@ spring:
     url: jdbc:mysql://localhost:3306/java_basic?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: 1q2w3e4r5t^^
+  servlet:
+    multipart:
+      max-file-size: 10MB        # 파일 1개 최대 크기 (기본 1MB라 쉽게 초과됨)
+      max-request-size: 10MB
+  jpa:
+    #hibernate:
+      #ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+file:
+  upload-dir: ./uploads #?

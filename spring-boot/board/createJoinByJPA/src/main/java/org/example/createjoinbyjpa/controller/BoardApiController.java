@@ -4,9 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.dto.BoardDetailResponseDto;
 import org.example.createjoinbyjpa.dto.BoardListResponseDto;
+import org.example.createjoinbyjpa.dto.BoardWriteRequestDto;
 import org.example.createjoinbyjpa.service.BoardService;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 @RestController
 @RequestMapping("/api/boards")
@@ -45,6 +52,29 @@ public class BoardApiController {
                 .userId(board.getFilePath())
                 .filePath(board.getFilePath())
                 .build();
+    }
+    @PostMapping
+    public void saveArticle(@ModelAttribute BoardWriteRequestDto request) {
+        boardService.saveArticle(
+                request.getUserId(),
+                request.getTitle(),
+                request.getContent(),
+                request.getFile()
+        );
+    }
+
+    @GetMapping("/file/download/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
+        Resource resource = boardService.downloadFile(fileName);
+
+        String encoded = URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20");
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename*=UTF-8''" + encoded)    // 저장
+                .body(resource);
     }
 
 }
