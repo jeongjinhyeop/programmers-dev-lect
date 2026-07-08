@@ -3,6 +3,7 @@ package org.example.createjoinbyjpa.service;
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.domain.repository.BoardRepository;
+import org.example.createjoinbyjpa.exception.BoardNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,5 +25,11 @@ public class BoardService {
     @Transactional(readOnly = true)
     public int getTotalBoards() {
         return (int) boardRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    public Board getBoardDetail(Long id){
+        return boardRepository.findById(id)
+                .orElseThrow(() -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id=" + id));
     }
 }

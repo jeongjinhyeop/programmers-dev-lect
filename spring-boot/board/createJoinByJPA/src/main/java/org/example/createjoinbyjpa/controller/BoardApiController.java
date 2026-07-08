@@ -2,12 +2,10 @@ package org.example.createjoinbyjpa.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
+import org.example.createjoinbyjpa.dto.BoardDetailResponseDto;
 import org.example.createjoinbyjpa.dto.BoardListResponseDto;
 import org.example.createjoinbyjpa.service.BoardService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
@@ -35,4 +33,18 @@ public class BoardApiController {
                 .totalPages(totalPages)
                 .build();
     }
+
+    @GetMapping("/{id}")
+    public BoardDetailResponseDto getBoardDetail(@PathVariable long id) {
+        Board board = boardService.getBoardDetail(id);
+
+        return BoardDetailResponseDto.builder()
+                .title(board.getTitle())
+                .content(board.getContent())
+                .created(board.getCreated())
+                .userId(board.getFilePath())
+                .filePath(board.getFilePath())
+                .build();
+    }
+
 }
