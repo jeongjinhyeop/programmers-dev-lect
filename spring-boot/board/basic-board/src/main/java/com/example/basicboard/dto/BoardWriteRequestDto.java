@@ -4,6 +4,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+
+//json 타입일 때는 @Setter 와 @NoArgsConstructor 가 없어도 된다.
+
+// * @ModelAttribute
+// 폼 필드가 같은 이름의 필드에 자동으로 채워진다.
+// - 파일은 JSON에 못 실으므로 multipart + @ModelAttribute 로 쓴다.
+// 그래서 아래 필드 이름은 화면 폼의 name 속성과 "똑같아야" 한다.
+// @Setter / @NoArgsConstructor
+// - @ModelAttribute는 "기본 생성자로 객체를 만든 뒤 setter로 값을 하나씩 채우는" 방식이다.
+// - 그래서 응답 DTO들처럼 @Builder만 있으면 안 되고, @Setter / @NoArgsConstructor 가 있어야 한다.
+
 @Getter
 @NoArgsConstructor
 public class BoardWriteRequestDto {

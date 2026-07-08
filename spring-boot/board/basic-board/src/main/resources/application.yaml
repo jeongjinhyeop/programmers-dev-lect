@@ -30,3 +30,6 @@ spring:
     url: jdbc:mysql://localhost:3306/java_basic?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: 1q2w3e4r5t^^
+
+file:
+  upload-dir: ./uploads

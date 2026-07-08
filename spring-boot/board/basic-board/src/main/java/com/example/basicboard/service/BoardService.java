@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,8 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BoardService {
-
+    private FileService fileService;
     private final BoardRepository boardRepository;
+
     public List<Board> getBoardList(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").descending());
         // * findAll(pageable).getContent()의 getContent()란?
@@ -29,9 +31,22 @@ public class BoardService {
         // 주의 : getContent()의 'content'는 Board 엔티티의 content가 아니다.
         return boardRepository.findAll(pageable).getContent();
     }
-
+    @Transactional
     public int getTotalBoards() {
         return (int) boardRepository.count();
+    }
+
+    public void saveBoard (String userId, String title, String content, MultipartFile file){
+        String filePath = fileService.storeFile(file);
+
+        boardRepository.save(
+                Board.builder()
+                        .userId(userId)
+                        .title(title)
+                        .content(content)
+                        .filePath(filePath)
+                        .build()
+        );
     }
 
 }
