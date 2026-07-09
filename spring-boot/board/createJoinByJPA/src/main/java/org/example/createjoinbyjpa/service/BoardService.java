@@ -3,6 +3,8 @@ package org.example.createjoinbyjpa.service;
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.domain.repository.BoardRepository;
+import org.example.createjoinbyjpa.dto.BoardDeleteRequestDto;
+import org.example.createjoinbyjpa.dto.BoardUpdateRequestDto;
 import org.example.createjoinbyjpa.exception.BoardNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final FileService fileService;
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -47,7 +50,7 @@ public class BoardService {
 
     @Transactional
     public void saveArticle(String userId, String title, String content, MultipartFile file) {
-        String filePath = storeFile(file);   // 첨부파일 없으면 null 반환
+        String filePath = fileService.storeFile(file);   // 첨부파일 없으면 null 반환
 
         Board board = Board.builder()
                 .userId(userId)
@@ -60,35 +63,31 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    private String storeFile (MultipartFile file) {
-        if(file == null || file.isEmpty()) return null;
-
-        try {
-            File dir = new File(uploadDir).getAbsoluteFile();
-            if(!dir.exists()) dir.mkdir();
-
-            String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            File dest = new File(dir,storedName);
-            //transferTo 전의 "임시 파일"은 톰캣이 시스템 임시 폴더에 만들어 둔 것
-            file.transferTo(dest);
-
-            return dest.getPath();
-
-        } catch (IOException e) {
-            throw new IllegalStateException("파일 저장에 실패했습니다.", e);
+    @Transactional
+    public void deleteArticle(Long id, BoardDeleteRequestDto request) {
+        if (!boardRepository.existsById(id)) {
+            throw new BoardNotFoundException("게시글을 찾을 수 없습니다. id=" + id);
         }
+        boardRepository.deleteById(id);        // ① DB 먼저
+        deleteFile(request.getFilePath());     // ② 파일 나중 (Step 5에서 FileService로 옮김)
     }
 
-    public Resource downloadFile(String fileName) {
-        try {
-            File file = new File(new File(uploadDir).getAbsoluteFile(), fileName);
-            Resource resource = new UrlResource(file.toURI());
-            if (!resource.exists() || !resource.isReadable()) {
-                throw new BoardNotFoundException("파일을 찾을 수 없습니다. fileName=" + fileName);
-            }
-            return resource;
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("파일 경로가 잘못되었습니다.", e);
-        }
+    // 파일 삭제 (첨부 없던 글이면 건너뜀)
+    private void deleteFile(String filePath) {
+
     }
+
+    @Transactional
+    public void updateArticle(Long id, BoardUpdateRequestDto request) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id=" + id));
+
+        String filePath = board.getFilePath();   // 기본값: 기존 파일 유지
+        if (request.isFileFlag()) {              // 파일을 건드렸다면
+            deleteFile(board.getFilePath());     // 기존 파일 삭제
+            filePath = fileService.storeFile(request.getFile()); // 새 파일 저장 (없으면 null = 제거)
+        }
+        board.update(request.getTitle(), request.getContent(), filePath); // 변경 감지로 UPDATE
+    }
+
 }

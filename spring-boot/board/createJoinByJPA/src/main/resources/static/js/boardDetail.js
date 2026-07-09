@@ -50,6 +50,8 @@ let loadBoardDetail = () => {
             $('#userId').text(response.userId);
             $('#created').text(response.created);
 
+            console.log("response.userId: " + response.userId);
+            console.log("hUserId: " +hUserId);
             if (hUserId != response.userId) {
                 $('#editBtn').prop('disabled', true);
                 $('#deleteBtn').prop('disabled', true);

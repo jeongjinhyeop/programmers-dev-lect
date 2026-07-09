@@ -2,10 +2,9 @@ package org.example.createjoinbyjpa.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
-import org.example.createjoinbyjpa.dto.BoardDetailResponseDto;
-import org.example.createjoinbyjpa.dto.BoardListResponseDto;
-import org.example.createjoinbyjpa.dto.BoardWriteRequestDto;
+import org.example.createjoinbyjpa.dto.*;
 import org.example.createjoinbyjpa.service.BoardService;
+import org.example.createjoinbyjpa.service.FileService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,6 +20,7 @@ import java.util.List;
 public class BoardApiController {
 
     private final BoardService boardService;
+    private final FileService fileService;
 
     @GetMapping
     public BoardListResponseDto getBoardList(
@@ -49,7 +49,7 @@ public class BoardApiController {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .created(board.getCreated())
-                .userId(board.getFilePath())
+                .userId(board.getUserId())
                 .filePath(board.getFilePath())
                 .build();
     }
@@ -65,7 +65,7 @@ public class BoardApiController {
 
     @GetMapping("/file/download/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
-        Resource resource = boardService.downloadFile(fileName);
+        Resource resource = fileService.downloadFile(fileName);
 
         String encoded = URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8)
                 .replaceAll("\\+", "%20");
@@ -75,6 +75,16 @@ public class BoardApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename*=UTF-8''" + encoded)    // 저장
                 .body(resource);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteArticle(@PathVariable long id, @RequestBody BoardDeleteRequestDto request) {
+        boardService.deleteArticle(id, request);
+    }
+
+    @PutMapping("/{id}")
+    public void updateArticle(@PathVariable long id, @ModelAttribute BoardUpdateRequestDto request) {
+        boardService.updateArticle(id, request);
     }
 
 }
