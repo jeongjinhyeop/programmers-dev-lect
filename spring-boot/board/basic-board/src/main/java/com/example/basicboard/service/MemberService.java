@@ -4,7 +4,7 @@ import com.example.basicboard.domain.entitiy.Member;
 import com.example.basicboard.domain.repository.MemberRepository;
 import com.example.basicboard.dto.LoginRequestDto;
 import com.example.basicboard.dto.MemberJoinRequestDto;
-import com.example.basicboard.exception.DuplicateUserException;
+import com.example.basicboard.exception.DuplicateUserIdException;
 import com.example.basicboard.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class MemberService {
     public void join(MemberJoinRequestDto dto){
         if(memberRepository.existsByUserId(dto.getUserId())) {
             // 예외 공통화
-            throw new DuplicateUserException("[회원가입] 이미 존재하는 아이디입니다.");
+            throw new DuplicateUserIdException("[회원가입] 이미 존재하는 아이디입니다.");
         }
         memberRepository.save(memberMapper.toEntity(dto));
     }

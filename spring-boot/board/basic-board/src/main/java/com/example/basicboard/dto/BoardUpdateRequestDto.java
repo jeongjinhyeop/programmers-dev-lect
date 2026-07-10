@@ -1,4 +1,4 @@
-package com.example.basicboard.controller;
+package com.example.basicboard.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @NoArgsConstructor
 public class BoardUpdateRequestDto {
-
     @Schema(description = "수정할 제목", example = "제목을 고쳤습니다")
     private String title;
     @Schema(description = "수정할 내용", example = "내용도 고쳤습니다")
@@ -19,4 +18,5 @@ public class BoardUpdateRequestDto {
     private MultipartFile file; // 새로 올린 파일(교체할 때만 값이 있음)
     @Schema(description = "첨부파일을 건드렸는지 여부(true=교체 또는 제거, false=기존 유지)", example = "false")
     private boolean fileFlag; // 첨부파일을 변경했는지 여부
+
 }

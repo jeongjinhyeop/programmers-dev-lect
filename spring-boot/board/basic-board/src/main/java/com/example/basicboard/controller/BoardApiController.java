@@ -2,13 +2,17 @@ package com.example.basicboard.controller;
 
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
-import com.example.basicboard.dto.BoardDeleteRequestDto;
-import com.example.basicboard.dto.BoardDetailResponseDto;
-import com.example.basicboard.dto.BoardResponseDto;
-import com.example.basicboard.dto.BoardWriteRequestDto;
+import com.example.basicboard.dto.*;
 import com.example.basicboard.exception.BoardNotFoundException;
 import com.example.basicboard.service.BoardService;
 import com.example.basicboard.service.FileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +24,18 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+// * Swagger 어노테이션들
+// - @Tag                 : 컨트롤러(그룹) 단위의 설명 - 화면에서 API를 묶는 큰 제목이 된다.
+// - @Operation           : 메서드(API 한 개) 단위의 설명 - 요약(summary)/상세(description)
+// - @Parameter           : 파라미터 하나에 대한 설명
+// - @ApiResponse(s)      : 이 API가 낼 수 있는 응답(상태코드별)을 문서에 명시
+// - @Content / @Schema   : 응답/요청 본문의 "형태(어떤 DTO인지)"를 지정
+
+// * 뷰 컨트롤러(@Controller + 뷰 이름 반환)는 이 설정과 무관하게 원래 문서에 안 나온다.
+// - springdoc 은 @ResponseBody(= @RestController) 핸들러만 문서화 대상으로 삼기 때문이다.
+// -(BoardController/MemberController 는 "board-list" 같은 뷰 이름을 반환하므로 애초에 제외된다)
+
+@Tag(name = "게시글 API", description = "게시글 목록/상세 조회, 작성, 수정, 삭제, 첨부파일 다운로드")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/boards")
@@ -29,6 +45,11 @@ public class BoardApiController {
     private BoardService boardService;
     private final FileService fileService;
 
+
+    @Operation(
+            summary = "게시글 목록 조회",
+            description = "페이지 단위로 게시글 목록을 조회한다. 목록(boards)과 마지막 페이지 여부(last), 전체 페이지 수(totalPages)를 함께 돌려준다."
+    )
     @GetMapping
     public BoardResponseDto getBoardList(
             //아무것도 안보내면 1페이지
@@ -52,11 +73,44 @@ public class BoardApiController {
                 .build();
     }
 
-    @PostMapping
+
+    // * Swagger 에서 "파일 업로드(multipart)" 를 제대로 그리게 하는 핵심
+    // # 문제: @ModelAttribute + MultipartFile 을 그냥 두면, Swagger 가 이걸 JSON 본문으로 오해하거나
+    //         파일 선택 버튼을 안 그려서 UI 에서 테스트가 안 된다
+    // # 해결 2가지 (둘을 같이 써야 완성된다):
+    //   (1) 여기 @PostMapping 에 consumes = MULTIPART_FORM_DATA_VALUE 를 "명시" 한다
+    //       -> springdoc 이 "아, 이 API 는 JSON 이 아니라 multipart 폼이구나" 를 알고 폼 형태로 그린다
+    //       -> 덤으로 이 엔드포인트가 multipart 요청만 받도록 더 엄격/정확해진다 (JS 는 원래 multipart 로 보냄)
+    //   (2) DTO 의 MultipartFile 필드에 @Schema(type="string", format="binary") 를 붙인다
+    //       -> 그래야 그 칸이 "파일 선택" 버튼으로 렌더링된다 (BoardWriteRequestDto 참고)
+    @Operation(summary = "게시글 작성",
+            description = "제목/내용/작성자와 (선택적) 첨부파일을 multipart/form-data 로 받아 새 게시글을 저장한다.")
+    @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
     public void saveBoard(@ModelAttribute BoardWriteRequestDto dto){
         boardService.saveBoard(dto.getUserId(), dto.getTitle(), dto.getContent(), dto.getFile());
     }
-
+    // * Swagger 에서 "파일 업로드(multipart)" 를 제대로 그리게 하는 핵심
+    // # 문제: @ModelAttribute + MultipartFile 을 그냥 두면, Swagger 가 이걸 JSON 본문으로 오해하거나
+    //         파일 선택 버튼을 안 그려서 UI 에서 테스트가 안 된다
+    // # 해결 2가지 (둘을 같이 써야 완성된다):
+    //   (1) 여기 @PostMapping 에 consumes = MULTIPART_FORM_DATA_VALUE 를 "명시" 한다
+    //       -> springdoc 이 "아, 이 API 는 JSON 이 아니라 multipart 폼이구나" 를 알고 폼 형태로 그린다
+    //       -> 덤으로 이 엔드포인트가 multipart 요청만 받도록 더 엄격/정확해진다 (JS 는 원래 multipart 로 보냄)
+    //   (2) DTO 의 MultipartFile 필드에 @Schema(type="string", format="binary") 를 붙인다
+    //       -> 그래야 그 칸이 "파일 선택" 버튼으로 렌더링된다 (BoardWriteRequestDto 참고)
+    @Operation(summary = "게시글 작성",
+            description = "제목/내용/작성자와 (선택적) 첨부파일을 multipart/form-data 로 받아 새 게시글을 저장한다.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "게시글 상세 조회 - 성공"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                    description = "게시글 상세 조회 - 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))
+            )
+    })
     @GetMapping("/{id}")
     public BoardDetailResponseDto getBoardDetail(@PathVariable long id) {
         Board boardDetail = boardService.getBoardDetail(id);
@@ -75,6 +129,17 @@ public class BoardApiController {
     // 그냥 Resource만 리턴하면 파일 내용은 내려가지만,
     // Content-Disposition: attachment 헤더를 붙일 방법이 없다.
     // -> 그러면 다운로드가 아니라 브라우저가 파일을 그냥 열어버리고, 저장 파일명도 못 정한다.
+
+
+    @Operation(summary = "첨부파일 다운로드",
+            description = "저장된 파일 이름으로 첨부파일을 내려받는다. Content-Disposition: attachment 로 브라우저가 다운로드하게 한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "파일 다운로드",
+                    content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                            schema = @Schema(type = "string", format = "binary"))),
+            @ApiResponse(responseCode = "404", description = "해당 이름의 파일이 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
     @GetMapping("/file/download/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         Resource resource = fileService.downloadFile(fileName);
@@ -102,7 +167,10 @@ public class BoardApiController {
                 .body(resource);
     }
 
-    @PutMapping("/{id}")
+
+    @Operation(summary = "게시글 수정",
+            description = "경로의 id 게시글을 수정한다. 파일 교체가 가능하도록 multipart/form-data 로 받는다.")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void updateBoard(@PathVariable long id, @RequestBody BoardUpdateRequestDto dto) {
         boardService.updateBoard(id, dto);
     }
