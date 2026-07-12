@@ -1,0 +1,14 @@
+file:
+  upload-dir: ./build/test-uploads   # FileService의 @Value 주입값 (없으면 전체 컨텍스트 로딩 실패)
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1  # MySQL 문법 호환 인메모리 H2
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop          # 엔티티로 테이블 생성 후 종료 시 삭제
+  sql:
+    init:
+      mode: never

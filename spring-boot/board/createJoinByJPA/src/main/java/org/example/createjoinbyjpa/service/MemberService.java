@@ -31,11 +31,12 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Optional<Member> login (LoginRequestDto request){
-        System.out.println(request.getPassword());
-        System.out.println(request.getUserId());
+        System.out.println("request.getPassword(): " + request.getPassword());
+        System.out.println("request.getUserId(): " + request.getUserId());
         return memberRepository.findByUserId(request.getUserId())
                 .filter(member ->
                     member.getPassword().equals(request.getPassword())
                 );
     }
+
 }
