@@ -4,8 +4,11 @@ import com.example.basicboard.controller.BoardUpdateRequestDto;
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
 import com.example.basicboard.dto.BoardDeleteRequestDto;
+import com.example.basicboard.dto.BoardListItemResponseDto;
+import com.example.basicboard.dto.BoardSearchRequestDto;
 import com.example.basicboard.exception.BoardNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -51,7 +54,7 @@ public class BoardService {
                         .title(title)
                         .content(content)
                         .filePath(filePath)
-                        .created(LocalDate.now())
+                        .created(LocalDateTime.now())
                         .build()
         );
     }
@@ -89,6 +92,8 @@ public class BoardService {
         fileService.deleteFile(dto.getFilePath());
     }
 
-
+    public Page<BoardListItemResponseDto> searchBoards(BoardSearchRequestDto dto, Pageable pageable) {
+        return boardRepository.searchBoards(dto, pageable);
+    }
 
 }
