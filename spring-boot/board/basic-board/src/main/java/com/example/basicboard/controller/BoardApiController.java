@@ -3,7 +3,7 @@ package com.example.basicboard.controller;
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
 import com.example.basicboard.dto.*;
-import com.example.basicboard.exception.BoardNotFoundException;
+import com.example.basicboard.mapper.BoardMapper;
 import com.example.basicboard.service.BoardService;
 import com.example.basicboard.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -48,6 +47,7 @@ public class BoardApiController {
     private final BoardRepository boardRepository;
     private final BoardService boardService;
     private final FileService fileService;
+    private final BoardMapper boardMapper;
 
 
     @Operation(
@@ -207,5 +207,16 @@ public class BoardApiController {
         Pageable pageable = PageRequest.of(page - 1, size);
         return boardService.searchBoards(dto, pageable);
     }
+
+    @GetMapping("/{id}/with-comments")
+    public BoardWithCommentsResponseDto getBoardWithComments(
+            @Parameter(description = "조회할 게시글 id", example = "1")
+            @PathVariable long id
+    ) {
+        Board board = boardService.getBoardWithComments(id);
+
+        return boardMapper.toBoardWithCommentResponseDto(board);
+    }
+
 
 }

@@ -96,4 +96,11 @@ public class BoardService {
         return boardRepository.searchBoards(dto, pageable);
     }
 
+    public Board getBoardWithComments(long id) {
+        return boardRepository.findWithComment(id)
+                .orElseThrow(
+                        () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
+                );
+    }
+
 }
