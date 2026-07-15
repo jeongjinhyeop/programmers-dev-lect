@@ -3,10 +3,7 @@ package org.example.createjoinbyjpa.service;
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.domain.repository.BoardRepository;
-import org.example.createjoinbyjpa.dto.BoardDeleteRequestDto;
-import org.example.createjoinbyjpa.dto.BoardListItemResponseDto;
-import org.example.createjoinbyjpa.dto.BoardSearchRequestDto;
-import org.example.createjoinbyjpa.dto.BoardUpdateRequestDto;
+import org.example.createjoinbyjpa.dto.*;
 import org.example.createjoinbyjpa.exception.BoardNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -102,6 +99,10 @@ public class BoardService {
                 .orElseThrow(
                         () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
                 );
+    }
+
+    public List<BoardAuthorStatsResponseDto> getAuthorStats(long minCount){
+        return boardRepository.countBoardsByAuthor(minCount);
     }
 
 }

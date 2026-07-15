@@ -28,6 +28,4 @@ public class Comment {
     //fk설정
     @JoinColumn(name = "board_id" , nullable = false)
     private Board board;
-
-    private LocalDateTime createdAt;
 }

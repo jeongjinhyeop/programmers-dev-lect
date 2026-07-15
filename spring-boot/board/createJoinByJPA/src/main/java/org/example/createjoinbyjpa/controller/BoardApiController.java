@@ -1,5 +1,6 @@
 package org.example.createjoinbyjpa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
@@ -98,5 +99,17 @@ public class BoardApiController {
         Board board = boardService.getBoardWithComments(id);
 
         return boardMapper.toBoardWithCommentResponseDto(board);
+    }
+
+    @Operation(summary = "작성자별 게시글 수 통계",
+        description = "11"
+    )
+    @GetMapping("/stats/authors")
+    public  List<BoardAuthorStatsResponseDto> getAuthorStats(
+            @Parameter(description = "최소 게시글 수 (이 값 이상은 쓴 작성자만)", example = "1")
+            @RequestParam(defaultValue = "1") long minCount
+    ){
+
+        return  boardService.getAuthorStats(minCount);
     }
 }

@@ -11,8 +11,10 @@ import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.domain.entity.QBoard;
 import org.example.createjoinbyjpa.domain.entity.QComment;
 import org.example.createjoinbyjpa.domain.entity.QMember;
+import org.example.createjoinbyjpa.dto.BoardAuthorStatsResponseDto;
 import org.example.createjoinbyjpa.dto.BoardListItemResponseDto;
 import org.example.createjoinbyjpa.dto.BoardSearchRequestDto;
+import org.example.createjoinbyjpa.dto.QBoardAuthorStatsResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -105,5 +107,23 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<BoardAuthorStatsResponseDto> countBoardsByAuthor(long minCount) {
+        queryFactory.select(
+                new QBoardAuthorStatsResponseDto(
+                        board.userId,
+                        member.userName,
+                        board.count()
+                ))
+                .from(board)
+                .leftJoin(member).on(board.userId.eq(member.userId))
+                .groupBy(board.userId, member, member.userName)
+                .having(board.count().goe(minCount))
+                .orderBy(board.count().desc())
+                .fetch();
+
+        return List.of();
     }
 }
