@@ -38,11 +38,24 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: false # 콘솔에 찍어주는것도 sout방식이라 끄는게 좋다.
     properties:
       hibernate:
         format_sql: true
 
+logging:
+  level:
+    root: info
+    com.example.basicboard: debug
+    # show-sql은 sout 방식이라 해당 방식을 log 방식으로 변경
+    #레벨제어도, 파일 저장도 안된다. (sout의 경우)
+    org.hibernate.SQL: debug  #실행되는 SQL문장을 로거로 출력 (.SQL 대문자로)
+    org.hibernate.orm.jdbc.bind: trace # SQL의 "?" 자리에 바인딩되는 실제 값까지 출력
+
+#logging:
+#  level:
+#    root: info
+#    com.example.spring.basicboard: debug
 
 file:
   upload-dir: ./uploads

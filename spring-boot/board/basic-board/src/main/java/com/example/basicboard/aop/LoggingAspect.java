@@ -1,6 +1,7 @@
 package com.example.basicboard.aop;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,6 +18,16 @@ import java.util.Arrays;
 // -"AOP  규칙을 담고 있다" 는 표시일 뿐, 스프링이 관리하는 빈으로 등록해주지 않는다.
 // - 스프링 컨테이너에 빈으로 등록해야, 스프링이 이 Aspect를 찾아서 실제로 적용한다.
 @Aspect
+@Slf4j
+// * System.out.println -> @Slf4j 로거로 교체한 이유
+// (1) 레벨이 없다 : 전부 같은 급이라, 운영에서 "디버그성 출력만 끄기" 같은 제어가 불가능하다.
+// (2) 맥락이 없다 : 시간/스레드/클래스 이름이 자동으로 안 붙는다. (문제 추적이 힘들다)
+// (3) 목적지가 고정이다 : 콘솔에만 나간다. 파일 저장, 날짜별 분할(롤링) 같은 걸 못 한다.
+// (4) 성능에 불리하다 : 동기 출력이라 요청이 몰리면 병목이 될 수 있다.
+// # log.info(...) 로 바꾸면 위 네 가지가 전부 해결된다 - 출력 형태를 보면 차이가 바로 보인다:
+//     System.out : [요청 시작] GET /api/boards -> ...
+//     log.info   : 2026-07-14T10:00:00.123+09:00  INFO 12345 --- [nio-8080-exec-1] c.e.s.b.aop.LoggingAspect : [요청 시작] ...
+//                  └ 시간 ──────────────────────┘ └레벨┘ └PID┘  └── 스레드 ──────┘ └── 어느 클래스가 찍었나 ┘
 @Component
 public class LoggingAspect {
 
@@ -55,29 +66,28 @@ public class LoggingAspect {
         }
 
         // == 대상 메서드 실행 "전" 로깅 ==
-        System.out.println("[요청 시작]" + httpInfo + " -> " + method);
+        log.info("[요청 시작] {} -> {} ", httpInfo, method);
 
-        System.out.println("[파라미터] " + Arrays.toString(joinPoint.getArgs()));
+        log.info("[파라미터] {}", Arrays.toString(joinPoint.getArgs()) );
 
         long start = System.currentTimeMillis();
 
         try {
-            // 이 코드를 기준으로 요청받은 메서드 실행 전과 실행 후로 나뉜다.
+            // 이 한 줄을 기준으로 요청받은 메서드 실행 전, 실행 후 로 나뉜다.
             Object result = joinPoint.proceed();
 
-            // == 대상 메서드가 정상 종료 된 후 로깅 ==
-
-            long end = System.currentTimeMillis() - start;
-            System.out.println("[요청 완료] " + method + " : " + end + "ms");
+            // === 대상 메서드가 "정상 종료"된 후 로깅 ===
+            long end = System.currentTimeMillis() - start; // 걸린시간
+            log.info("[요청 완료] {} : {} ms", method, end);
 
             return result;
-        }catch (Throwable e){
-            // == 대상 메서드가 예외를 던졌을 때 로깅 ==
-            long end = System.currentTimeMillis() - start;
-            System.out.println("[요청 실패] " + method + " : " + end + "ms" + " : 예외메세지 " + e.getMessage());
+        } catch ( Throwable e ) {
+            // === 대상 메서드가 "예외를 던졌을 때" 로깅 ===
+            long end = System.currentTimeMillis() - start; // 걸린시간
+            log.warn("[요청 실패] {} : {} ms : 예외메시지 {}", method, end, e.getMessage());
 
             // 잡은 예외를 다시 던진다.
-            // - 여기서 예외를 삼켜버리면 컨트롤러는 정상 처리된 것 처럼 보여 버그가 된다.
+            // - 여기서 예외를 삼켜버리면 컨트롤러는 정상 처리된 것처럼 보여 버그가 된다.
             throw e;
         }
     }
