@@ -1,8 +1,10 @@
 package org.example.createjoinbyjpa.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.dto.*;
+import org.example.createjoinbyjpa.mapper.BoardMapper;
 import org.example.createjoinbyjpa.service.BoardService;
 import org.example.createjoinbyjpa.service.FileService;
 import org.springframework.core.io.Resource;
@@ -21,6 +23,7 @@ public class BoardApiController {
 
     private final BoardService boardService;
     private final FileService fileService;
+    private final BoardMapper boardMapper;
 
     @GetMapping
     public BoardListResponseDto getBoardList(
@@ -87,4 +90,13 @@ public class BoardApiController {
         boardService.updateArticle(id, request);
     }
 
+    @GetMapping("/{id}/with-comments")
+    public BoardWithCommentsResponseDto getBoardWithComments(
+            @Parameter(description = "조회할 게시글 id", example = "1")
+            @PathVariable long id
+    ) {
+        Board board = boardService.getBoardWithComments(id);
+
+        return boardMapper.toBoardWithCommentResponseDto(board);
+    }
 }

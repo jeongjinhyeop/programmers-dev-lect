@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.createjoinbyjpa.domain.entity.Board;
 import org.example.createjoinbyjpa.domain.repository.BoardRepository;
 import org.example.createjoinbyjpa.dto.BoardDeleteRequestDto;
+import org.example.createjoinbyjpa.dto.BoardListItemResponseDto;
+import org.example.createjoinbyjpa.dto.BoardSearchRequestDto;
 import org.example.createjoinbyjpa.dto.BoardUpdateRequestDto;
 import org.example.createjoinbyjpa.exception.BoardNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -88,6 +91,17 @@ public class BoardService {
             filePath = fileService.storeFile(request.getFile()); // 새 파일 저장 (없으면 null = 제거)
         }
         board.update(request.getTitle(), request.getContent(), filePath); // 변경 감지로 UPDATE
+    }
+
+    public Page<BoardListItemResponseDto> searchBoards(BoardSearchRequestDto dto, Pageable pageable) {
+        return boardRepository.searchBoards(dto, pageable);
+    }
+
+    public Board getBoardWithComments(Long id){
+        return boardRepository.findWithComment(id)
+                .orElseThrow(
+                        () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
+                );
     }
 
 }

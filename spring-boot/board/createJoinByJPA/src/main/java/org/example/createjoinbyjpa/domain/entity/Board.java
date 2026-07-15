@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "board")
@@ -34,6 +36,8 @@ public class Board {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime created;
 
+    @OneToMany(mappedBy = "board")
+    private List<Comment> comments = new ArrayList<>();
     //이 객체는 트랜잭션 안에서 findById로 가져온 영속 상태예요. 필드만 바꿔도 커밋 시 UPDATE가 나가요. (작성/신규 저장은 save()가 필요했지만, 수정은 변경 감지 덕에 save()가 필요 없어요.)
     public void update(String title, String content, String filePath) {
         this.title = title;
