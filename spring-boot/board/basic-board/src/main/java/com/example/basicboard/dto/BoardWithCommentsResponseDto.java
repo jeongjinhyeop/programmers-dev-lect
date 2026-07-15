@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Setter
+//@Setter
 @Builder
 public class BoardWithCommentsResponseDto {
 

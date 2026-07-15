@@ -3,6 +3,7 @@ package com.example.basicboard.service;
 import com.example.basicboard.controller.BoardUpdateRequestDto;
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
+import com.example.basicboard.dto.BoardAuthorStatsResponseDto;
 import com.example.basicboard.dto.BoardDeleteRequestDto;
 import com.example.basicboard.dto.BoardListItemResponseDto;
 import com.example.basicboard.dto.BoardSearchRequestDto;
@@ -101,6 +102,10 @@ public class BoardService {
                 .orElseThrow(
                         () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
                 );
+    }
+
+    public List<BoardAuthorStatsResponseDto> getAuthorStats(long minCount) {
+        return boardRepository.countBoardsByAuthor(minCount);
     }
 
 }

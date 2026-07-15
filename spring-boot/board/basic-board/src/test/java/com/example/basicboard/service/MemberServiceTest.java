@@ -88,7 +88,7 @@ class MemberServiceTest {
         given(memberRepository.findByUserId("test")).willReturn(Optional.of(member));
 
         LoginRequestDto requestDto = new LoginRequestDto();
-        requestDto.setUsername("홍길동");
+        requestDto.setUserId("홍길동");
         requestDto.setPassword("1234");
 
         Optional<Member> result = memberService.login(requestDto);
@@ -103,7 +103,7 @@ class MemberServiceTest {
         given(memberRepository.findByUserId("nobody")).willReturn(Optional.empty());
 
         LoginRequestDto requestDto = new LoginRequestDto();
-        requestDto.setUsername("test");
+        requestDto.setUserId("test");
         requestDto.setPassword("9999");
 
         Optional<Member> result = memberService.login(requestDto);

@@ -27,6 +27,7 @@ public class Comment {
     private String userId;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column
     private LocalDateTime created;
 
     // * FetchType.LAZY를 "직접 명시" 해야 하는 이유
@@ -37,6 +38,4 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
-
-    private LocalDateTime createdAt;
 }
