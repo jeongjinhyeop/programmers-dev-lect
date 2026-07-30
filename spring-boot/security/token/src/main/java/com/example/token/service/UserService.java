@@ -25,6 +25,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
+    @Transactional
     public void signUp(SignUpRequestDto requestDto) {
 
         if ( userRepository.existsByUserId(requestDto.getUserId()) ) {

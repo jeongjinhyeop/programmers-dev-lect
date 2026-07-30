@@ -111,7 +111,9 @@ public class SecurityConfig {
                                 "/api/tokens/refresh",
 
                                 "/css/**",
-                                "/js/**"
+                                "/js/**",
+                                "/access-denied",
+                                "/error"  // 404 등 에러 포워딩 경로. 막으면 인증 리다이렉트 루프가 생긴다.
                         )
                         .permitAll()
                         .anyRequest().authenticated()
