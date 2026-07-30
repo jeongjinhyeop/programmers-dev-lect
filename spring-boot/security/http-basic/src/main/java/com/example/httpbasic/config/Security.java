@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 // 서블릿 컨테이너(톰캣)에 등록된 이 필터가 요청을 받아서 스프링이 관리하는 FilterChainProxy에게 위임하고,
 // 이 FilterChainProxy가 내부적으로 여러 SecurityFilterChain을 들고 있다.
 // 즉 "톰캣 필터 -> 스프링 빈으로 관리되는 보안 필터들"로 다리를 놓아주는 구조이다.
-// - 요청 -> DelegatingFilterProxy -> FilterChainProxy -> [보안 필터 체인] -> DispatcherServlet -> Controller
+// - 요청 -> DelegatingFilterProxy ->  FilterChainProxy-> [보안 필터 체인] -> DispatcherServlet -> Controller
 
 // * DelegatingFilterProxy : "서블릿 컨테이너(톰캣)의 세계와 스프링의 세계를 이어주는 다리 역할을 하는 필터"이다.
 // - Delegating(위임) +  Filter + Proxy(대리인) : 실제 일은 다른 녀석에게 위임하는 껍데기 필터
@@ -55,7 +55,7 @@ import org.springframework.security.web.SecurityFilterChain;
 // 1. 요청이 들어오면 BasicAuthenticationFilter 가 Authorization: Basic ZHVzZXI6cGFzc3dvcmQ= 헤더가 있는지 확인
 // 2. 헤더가 있으면 Base64를 디코딩해 아이디/ 비밀번호 를 꺼내고, UsernamePasswordAuthenticationToken을 만든다.
 // 3. 이 토큰을 AuthenticationManager에게 넘겨 인증을 검증한다.
-// 4. 성송하면 Security에 인증 정보를 저장하고 다음 필터로 넘어간다.
+// 4. 성공하면 Security에 인증 정보를 저장하고 다음 필터로 넘어간다.
 // 5. 헤더가 없거나 인증에 실패하면, BasicAuthenticationEntryPoint가 401 Unauthorized와 WWW-Authenticate: Basic 헤더를 응답한다. (다시 1번 상황으로)
 
 // * 특징

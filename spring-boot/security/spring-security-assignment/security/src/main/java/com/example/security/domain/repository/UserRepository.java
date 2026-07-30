@@ -1,6 +1,6 @@
-package com.example.formlogin.domain.repository;
+package com.example.security.domain.repository;
 
-import com.example.formlogin.domain.entity.User;
+import com.example.security.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
