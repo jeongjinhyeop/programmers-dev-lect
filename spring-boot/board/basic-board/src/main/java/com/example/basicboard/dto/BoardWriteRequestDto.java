@@ -3,6 +3,7 @@ package com.example.basicboard.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 // - 그래서 응답 DTO들처럼 @Builder만 있으면 안 되고, @Setter / @NoArgsConstructor 가 있어야 한다.
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class BoardWriteRequestDto {
     @Schema( description = "게시글 제목", example = "첫 글입니다.")

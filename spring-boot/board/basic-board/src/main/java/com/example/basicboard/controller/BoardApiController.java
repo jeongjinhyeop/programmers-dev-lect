@@ -1,5 +1,6 @@
 package com.example.basicboard.controller;
 
+import com.example.basicboard.config.security.CustomUserDetails;
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
 import com.example.basicboard.dto.*;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
@@ -38,6 +41,7 @@ import java.util.List;
 // - springdoc 은 @ResponseBody(= @RestController) 핸들러만 문서화 대상으로 삼기 때문이다.
 // -(BoardController/MemberController 는 "board-list" 같은 뷰 이름을 반환하므로 애초에 제외된다)
 
+@Slf4j
 @Tag(name = "게시글 API", description = "게시글 목록/상세 조회, 작성, 수정, 삭제, 첨부파일 다운로드")
 @RestController
 @RequiredArgsConstructor
@@ -56,18 +60,12 @@ public class BoardApiController {
     )
     @GetMapping
     public BoardResponseDto getBoardList(
-            //아무것도 안보내면 1페이지
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
     ){
         List<Board> boards = boardService.getBoardList(page, size);
-
-        //전체 게시글 수 가져오기
         int totalBoards = boardService.getTotalBoards();
-
-        int totalPages = (int) Math.ceil((double) totalBoards /size);
-
-        //마지막 페이지 여부
+        int totalPages = (int) Math.ceil((double) totalBoards / size);
         boolean last = page >= totalPages;
 
         return BoardResponseDto.builder()
@@ -77,55 +75,29 @@ public class BoardApiController {
                 .build();
     }
 
+    @Operation(
+            summary = "게시글 작성",
+            description = "제목/내용/작성자와 (선택적) 첨부파일을 multipart/form-data 로 받아 새 게시글을 저장한다."
+    )
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> saveBoard(@ModelAttribute BoardWriteRequestDto dto, @AuthenticationPrincipal CustomUserDetails userDetails){
+        String loginUserId = userDetails.getUsername();
 
-    // * Swagger 에서 "파일 업로드(multipart)" 를 제대로 그리게 하는 핵심
-    // # 문제: @ModelAttribute + MultipartFile 을 그냥 두면, Swagger 가 이걸 JSON 본문으로 오해하거나
-    //         파일 선택 버튼을 안 그려서 UI 에서 테스트가 안 된다
-    // # 해결 2가지 (둘을 같이 써야 완성된다):
-    //   (1) 여기 @PostMapping 에 consumes = MULTIPART_FORM_DATA_VALUE 를 "명시" 한다
-    //       -> springdoc 이 "아, 이 API 는 JSON 이 아니라 multipart 폼이구나" 를 알고 폼 형태로 그린다
-    //       -> 덤으로 이 엔드포인트가 multipart 요청만 받도록 더 엄격/정확해진다 (JS 는 원래 multipart 로 보냄)
-    //   (2) DTO 의 MultipartFile 필드에 @Schema(type="string", format="binary") 를 붙인다
-    //       -> 그래야 그 칸이 "파일 선택" 버튼으로 렌더링된다 (BoardWriteRequestDto 참고)
-    @Operation(summary = "게시글 작성",
-            description = "제목/내용/작성자와 (선택적) 첨부파일을 multipart/form-data 로 받아 새 게시글을 저장한다.")
-    @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE )
-    public void saveBoard(@ModelAttribute BoardWriteRequestDto dto){
-        boardService.saveBoard(dto.getUserId(), dto.getTitle(), dto.getContent(), dto.getFile());
+        // 2. 디버깅용 로그 확인
+        log.info("토큰에서 추출한 userId = {}", loginUserId);
+
+        boardService.saveBoard(loginUserId, dto.getTitle(), dto.getContent(), dto.getFile());
+        return ResponseEntity.ok().build();
     }
-    // * Swagger 에서 "파일 업로드(multipart)" 를 제대로 그리게 하는 핵심
-    // # 문제: @ModelAttribute + MultipartFile 을 그냥 두면, Swagger 가 이걸 JSON 본문으로 오해하거나
-    //         파일 선택 버튼을 안 그려서 UI 에서 테스트가 안 된다
-    // # 해결 2가지 (둘을 같이 써야 완성된다):
-    //   (1) 여기 @PostMapping 에 consumes = MULTIPART_FORM_DATA_VALUE 를 "명시" 한다
-    //       -> springdoc 이 "아, 이 API 는 JSON 이 아니라 multipart 폼이구나" 를 알고 폼 형태로 그린다
-    //       -> 덤으로 이 엔드포인트가 multipart 요청만 받도록 더 엄격/정확해진다 (JS 는 원래 multipart 로 보냄)
-    //   (2) DTO 의 MultipartFile 필드에 @Schema(type="string", format="binary") 를 붙인다
-    //       -> 그래야 그 칸이 "파일 선택" 버튼으로 렌더링된다 (BoardWriteRequestDto 참고)
-    @Operation(summary = "게시글 작성",
-            description = "제목/내용/작성자와 (선택적) 첨부파일을 multipart/form-data 로 받아 새 게시글을 저장한다.")
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "게시글 상세 조회 - 성공"
-            ),
-            @ApiResponse(
-                responseCode = "404",
-                    description = "게시글 상세 조회 - 없음",
-                    content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))
-            )
-    })
-    @GetMapping("/{id}")
-    public BoardDetailResponseDto getBoardDetail(@PathVariable long id) {
-        Board boardDetail = boardService.getBoardDetail(id);
 
-        return BoardDetailResponseDto.builder()
-                .title(boardDetail.getTitle())
-                .content(boardDetail.getContent())
-                .filePath(boardDetail.getFilePath())
-                .created(boardDetail.getCreated())
-                .userId(boardDetail.getUserId())
-                .build();
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardDetailResponseDto> getBoardDetail(
+            @PathVariable long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        Board board = boardService.getBoardDetail(id, userDetails);
+        return ResponseEntity.ok(BoardDetailResponseDto.from(board));
     }
 
     // ResponseEntity는 HTTP응답의 3가지를 직접 제어하게 해주는 상자다
@@ -208,12 +180,23 @@ public class BoardApiController {
         return boardService.searchBoards(dto, pageable);
     }
 
+//    @GetMapping("/{id}/with-comments")
+//    public BoardWithCommentsResponseDto getBoardWithComments(
+//            @Parameter(description = "조회할 게시글 id", example = "1")
+//            @PathVariable long id
+//    ) {
+//        Board board = boardService.getBoardWithComments(id);
+//
+//        return boardMapper.toBoardWithCommentResponseDto(board);
+//    }
+
     @GetMapping("/{id}/with-comments")
     public BoardWithCommentsResponseDto getBoardWithComments(
             @Parameter(description = "조회할 게시글 id", example = "1")
-            @PathVariable long id
+            @PathVariable long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails // 💡 인증된 유저 정보 추가
     ) {
-        Board board = boardService.getBoardWithComments(id);
+        Board board = boardService.getBoardWithComments(id, userDetails);
 
         return boardMapper.toBoardWithCommentResponseDto(board);
     }

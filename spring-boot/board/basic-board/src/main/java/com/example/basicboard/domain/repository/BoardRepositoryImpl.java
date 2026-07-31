@@ -161,6 +161,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                         board.userId,
                         member.userName,
                         board.count()
+
                 ))
                 .from(board)
                 .leftJoin(member).on(board.userId.eq(member.userId))

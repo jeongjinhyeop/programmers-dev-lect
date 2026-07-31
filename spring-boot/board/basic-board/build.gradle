@@ -68,6 +68,12 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'  // JWT API
+
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'    // JWT 구현체
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0' // JSON 처리를 위한 Jackson 모듈
 }
 
 tasks.named('test') {

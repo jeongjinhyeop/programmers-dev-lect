@@ -60,5 +60,10 @@ public class BoardController {
         model.addAttribute("userName", userName);
     }
 
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
+
 
 }

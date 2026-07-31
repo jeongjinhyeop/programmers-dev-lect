@@ -1,5 +1,6 @@
 package com.example.basicboard.service;
 
+import com.example.basicboard.config.security.CustomUserDetails;
 import com.example.basicboard.controller.BoardUpdateRequestDto;
 import com.example.basicboard.domain.entitiy.Board;
 import com.example.basicboard.domain.repository.BoardRepository;
@@ -18,15 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import org.springframework.security.access.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly = false)
 public class BoardService {
-    private FileService fileService;
+    private final FileService fileService;
     private final BoardRepository boardRepository;
 
     public List<Board> getBoardList(int page, int size) {
@@ -60,11 +62,27 @@ public class BoardService {
         );
     }
 
-    public Board getBoardDetail(long id) {
-        return boardRepository.findById(id)
-                .orElseThrow( () -> new BoardNotFoundException("[BOARD] 게시글을 찾을 수 없습니다. id : " + id));
+//    public Board getBoardDetail(long id) {
+//        return boardRepository.findById(id)
+//                .orElseThrow( () -> new BoardNotFoundException("[BOARD] 게시글을 찾을 수 없습니다. id : " + id));
+//    }
+public Board getBoardDetail(long id, CustomUserDetails userDetails) {
+    // 1. 게시글 존재 조회
+    Board board = boardRepository.findById(id)
+            .orElseThrow(() -> new BoardNotFoundException("[BOARD] 게시글을 찾을 수 없습니다. id : " + id));
+
+    // 2. 로그인 사용자 ID 및 ADMIN 권한 확인
+    String currentUserId = userDetails.getUsername();
+    boolean isAdmin = userDetails.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+    // 3. 인가 검사: 어드민도 아니고 본인 글도 아니면 거부
+    if (!isAdmin && !board.getUserId().equals(currentUserId)) {
+        throw new AccessDeniedException("본인의 게시글만 조회할 수 있습니다.");
     }
 
+    return board;
+}
     @Transactional
     public void updateBoard(long id, BoardUpdateRequestDto dto) {
         Board board = boardRepository.findById(id)
@@ -97,11 +115,31 @@ public class BoardService {
         return boardRepository.searchBoards(dto, pageable);
     }
 
-    public Board getBoardWithComments(long id) {
-        return boardRepository.findWithComment(id)
+//    public Board getBoardWithComments(long id) {
+//        return boardRepository.findWithComment(id)
+//                .orElseThrow(
+//                        () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
+//                );
+//    }
+
+    public Board getBoardWithComments(long id, CustomUserDetails userDetails) {
+        // 1. 게시글 및 댓글 데이터 조회
+        Board board = boardRepository.findWithComment(id)
                 .orElseThrow(
                         () -> new BoardNotFoundException("게시글을 찾을 수 없습니다. id = " + id)
                 );
+
+        // 2. 로그인한 유저 ID 및 관리자 여부 확인
+        String currentUserId = userDetails.getUsername();
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        // 3. 인가(Authorization) 검사
+        if (!isAdmin && !board.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("본인의 게시글만 조회할 수 있습니다.");
+        }
+
+        return board;
     }
 
     public List<BoardAuthorStatsResponseDto> getAuthorStats(long minCount) {
