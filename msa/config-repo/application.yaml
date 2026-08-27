@@ -1,0 +1,5 @@
+jwt:
+  secret_key: 4ukvJcQYxNY1X/9Ep4VsnXWhjkV/QzN/plJa24NcOf1pnLB+78OKrBG4LyAVGOHzzdo5sorkBA73Yo0/4urXIg==
+
+service:
+  token: msa-internal-3f9d2c8a71b64e05
