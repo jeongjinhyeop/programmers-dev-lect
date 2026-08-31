@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SignupResponseDto {
+public class SignUpResponseDto {
     private String url;
 }
