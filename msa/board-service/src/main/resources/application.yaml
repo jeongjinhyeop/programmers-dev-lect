@@ -1,5 +1,12 @@
+server:
+  port: 8081
 spring:
   application:
     name: board-service
-server:
-  port: 8081
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  datasource:
+    url: jdbc:mysql://localhost:3306/board_app?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 1234
