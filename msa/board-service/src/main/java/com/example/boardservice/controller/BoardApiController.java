@@ -1,10 +1,12 @@
-package com.example.spring.boardservice.controller;
+package com.example.boardservice.controller;
 
+import com.example.boardservice.dto.BoardListItemResponseDto;
+import com.example.boardservice.dto.BoardSearchRequestDto;
 import com.example.boardservice.service.BoardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,8 +16,12 @@ public class BoardApiController {
     private final BoardService boardService;
 
     @GetMapping("/search")
-    public void searchBoards() {
-
+    public Page<BoardListItemResponseDto> searchBoards(
+            @ModelAttribute BoardSearchRequestDto dto,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return boardService.searchBoards(dto, PageRequest.of(page - 1, size));
     }
 
 
