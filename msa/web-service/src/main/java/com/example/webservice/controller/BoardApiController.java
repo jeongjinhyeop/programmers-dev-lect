@@ -1,11 +1,11 @@
 package com.example.webservice.controller;
 
-import com.example.webservice.dto.BoardPageResponseDto;
-import com.example.webservice.dto.BoardSearchRequestDto;
-import com.example.webservice.dto.BoardWithCommentsResponseDto;
+import com.example.webservice.dto.*;
 import com.example.webservice.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,6 +34,40 @@ public class BoardApiController {
             @PathVariable long id
     ) {
         return boardService.getBoardWithComments(authorization, id);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void saveBoard(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @ModelAttribute BoardWriteRequestDto dto
+    ) {
+        boardService.saveBoard(authorization, dto);
+    }
+
+    @PutMapping("/{id}")
+    public void updateBoard(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable long id,
+            @ModelAttribute BoardUpdateRequestDto dto
+    ) {
+        boardService.updateBoard(authorization, id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBoard(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable long id,
+            @RequestBody BoardDeleteRequestDto dto
+    ) {
+        boardService.deleteBoard(authorization, id, dto);
+    }
+
+    @GetMapping("/file/download/{fileName}")
+    ResponseEntity<byte[]> downloadFile(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization,
+            @PathVariable String fileName
+    ) {
+        return boardService.downloadFile(authorization, fileName);
     }
 
 }

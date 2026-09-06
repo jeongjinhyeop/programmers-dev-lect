@@ -1,13 +1,15 @@
 package com.example.webservice.client;
 
-import com.example.webservice.dto.BoardPageResponseDto;
-import com.example.webservice.dto.BoardSearchRequestDto;
+import com.example.webservice.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 // 헤더를 파라미터로 받는 이유
 // Feign은 서블릿 요청과 무관한 새 HTTP 요청을 만들기 때문에,
@@ -25,6 +27,65 @@ public interface BoardClient {
             @SpringQueryMap BoardSearchRequestDto condition,
             @RequestParam("page") int page,
             @RequestParam("size") int size
+    );
+
+    @GetMapping("/api/boards/{id}/with-comments")
+    BoardWithCommentsResponseDto getBoardWithComments(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable("id") long id
+    );
+
+    @PostMapping("/api/boards/{boardId}/comments")
+    void addComment(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable long boardId,
+            @RequestBody CommentWriteRequestDto requestDto
+    );
+
+    @PostMapping(value = "/api/boards", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void saveBoard(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart("userId") String userId,
+            @RequestPart(value = "file", required = false) MultipartFile file
+    );
+
+    @GetMapping("/api/boards/{id}")
+    BoardDetailResponseDto getBoardDetail(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable long id
+    );
+
+    @PostMapping(value = "/api/boards/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    void updateBoard(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable long id,
+            @RequestPart("title") String title,
+            @RequestPart("content") String content,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart("fileFlag") String fileFlag
+    );
+
+    @DeleteMapping("/api/boards/{id}")
+    void deleteBoard(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable long id,
+            @RequestBody BoardDeleteRequestDto dto
+    );
+
+    @GetMapping("/api/boards/file/download/{fileName}")
+    ResponseEntity<byte[]> downloadFile(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @PathVariable String fileName
+    );
+
+    @GetMapping("/stats/authors")
+    public List<BoardAuthorStatsResponseDto> getAuthors(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestPart("userId") String userId,
+            @RequestPart("userName") String userName,
+            @RequestPart("boardCount") Long  boardCount
     );
 
 }
