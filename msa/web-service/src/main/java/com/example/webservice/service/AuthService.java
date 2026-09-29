@@ -21,6 +21,6 @@ public class AuthService {
     }
 
     public UserInfoResponseDto getUserInfo(String authorization) {
-        return  authClient.getUserInfo(authorization);
+        return authClient.getUserInfo(authorization);
     }
 }

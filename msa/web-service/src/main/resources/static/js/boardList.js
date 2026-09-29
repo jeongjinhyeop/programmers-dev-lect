@@ -65,6 +65,9 @@ let loadBoard = (page) => {
             ...getSearchCondition()
         },
         success: (response) => {
+            console.log("response =", response);
+            console.log("typeof =", typeof response);
+            console.log("JSON.stringify =", JSON.stringify(response));
             // 응답 구조가 달라졌다
             //   기존: response.boards       (BoardListResponseDto 의 필드 이름)
             //   변경: response.content      (스프링 Page 객체의 표준 필드 이름 - 목록은 항상 content 에 담긴다)

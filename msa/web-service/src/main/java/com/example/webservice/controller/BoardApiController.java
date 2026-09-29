@@ -24,6 +24,7 @@ public class BoardApiController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ){
+        System.out.println("authorization = " + authorization);
         return boardService.searchBoard(authorization, boardSearchRequestDto, page, size);
     }
 
