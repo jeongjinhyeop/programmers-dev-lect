@@ -1,4 +1,4 @@
-package com.example.spring.authservice.dto;
+package com.example.authservice.dto;
 
 import com.example.authservice.config.oauth2.AuthProvider;
 import lombok.AllArgsConstructor;

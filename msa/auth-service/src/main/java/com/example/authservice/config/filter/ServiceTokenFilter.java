@@ -22,12 +22,14 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
             "/api/users/names"
     );
 
-    @Value("${Service.token}")
+    @Value("${service.token}")
     private String serviceToken;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+        log.info("request method: {}, URI: {}",
+                request.getMethod(),
+                request.getRequestURI());
         if(INTERNAL_API_PATHS.contains(request.getRequestURI())) {
             log.info("INTERNAL_API_PATHS contains : {}", request.getRequestURI());
             String token = request.getHeader(SERVICE_TOKEN_HEADER);
@@ -40,5 +42,6 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
                 return;
             }
         }
+        filterChain.doFilter(request, response);
     }
 }

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
@@ -21,6 +23,7 @@ public class UserApiController {
 
     @PostMapping("/join")
     public SignUpResponseDto join(@RequestBody SignUpRequestDto signUpRequestDto) {
+        System.out.println("===== JOIN CONTROLLER 들어옴 =====");
 
         userService.signUp(signUpRequestDto);
 
@@ -60,4 +63,8 @@ public class UserApiController {
                 .build();
     }
 
+    @GetMapping("/names")
+    public List<UserNameResponseDto> getUserNames(@RequestParam List<String> userIds) {
+        return userService.getUserNames(userIds);
+    }
 }

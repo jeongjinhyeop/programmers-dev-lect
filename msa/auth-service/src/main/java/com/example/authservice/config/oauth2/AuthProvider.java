@@ -4,9 +4,7 @@ public enum AuthProvider {
     LOCAL,
     KAKAO;
 
-    public AuthProvider from(
-            String registrationId
-    ){
+    public static AuthProvider from(String registrationId) {
         return AuthProvider.valueOf(registrationId.toUpperCase());
     }
 }

@@ -8,7 +8,7 @@ public interface OAuth2UserInfo {
 
     String id();
 
-    String emai();
+    String email();
 
     String name();
 

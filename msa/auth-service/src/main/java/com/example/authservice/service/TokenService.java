@@ -5,7 +5,7 @@ import com.example.authservice.config.jwt.TokenProvider;
 import com.example.authservice.config.jwt.TokenStatus;
 import com.example.authservice.domain.entity.User;
 import com.example.authservice.dto.RefreshTokenResponseDto;
-import com.example.spring.authservice.dto.SignupPayloadDto;
+import com.example.authservice.dto.SignupPayloadDto;
 import com.example.authservice.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
