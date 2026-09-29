@@ -1,4 +1,4 @@
-package com.example.spring.boardservice.config;
+package com.example.boardservice.config;
 
 import com.example.boardservice.config.filter.TokenAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
