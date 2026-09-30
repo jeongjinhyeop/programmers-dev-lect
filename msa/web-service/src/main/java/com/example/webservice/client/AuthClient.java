@@ -4,10 +4,7 @@ import com.example.webservice.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(value = "auth-service", url = "${edge-service.url:http://localhost:8000}")
 public interface AuthClient {
@@ -20,4 +17,24 @@ public interface AuthClient {
 
     @GetMapping("/api/users/info")
     UserInfoResponseDto getUserInfo(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization);
+
+    @PostMapping("/api/users/logout")
+    ResponseEntity<LogoutResponseDto> logout(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestHeader(HttpHeaders.COOKIE) String cookie
+    );
+
+    @PostMapping("/api/tokens/refresh")
+    ResponseEntity<RefreshTokenResponseDto> refreshToken(
+            @RequestHeader(HttpHeaders.COOKIE) String cookie
+    );
+
+    @PostMapping("/api/users/oauth-join")
+    ResponseEntity<SignInResponseDto> oauthSignUp(@RequestBody OAuthSignUpRequestDto dto);
+
+    @DeleteMapping("/api/users/me")
+    ResponseEntity<WithdrawResponseDto> withdraw(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestHeader(HttpHeaders.COOKIE) String cookie
+    );
 }

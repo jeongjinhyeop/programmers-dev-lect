@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final AuthClient authClient;
-
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
         return authClient.join(signUpRequestDto);
     }
@@ -21,6 +20,22 @@ public class AuthService {
     }
 
     public UserInfoResponseDto getUserInfo(String authorization) {
-        return authClient.getUserInfo(authorization);
+        return  authClient.getUserInfo(authorization);
+    }
+
+    public ResponseEntity<LogoutResponseDto> logout(String authorization, String cookie) {
+        return authClient.logout(authorization, cookie);
+    }
+
+    public ResponseEntity<RefreshTokenResponseDto> refreshToken(String cookie) {
+        return authClient.refreshToken(cookie);
+    }
+
+    public ResponseEntity<SignInResponseDto> oauthSignUp(OAuthSignUpRequestDto dto) {
+        return authClient.oauthSignUp(dto);
+    }
+
+    public ResponseEntity<WithdrawResponseDto> withdraw(String authorization, String cookie) {
+        return authClient.withdraw(authorization, cookie);
     }
 }
