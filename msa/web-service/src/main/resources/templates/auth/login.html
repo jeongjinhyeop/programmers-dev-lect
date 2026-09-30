@@ -33,7 +33,7 @@
              자체 로그인(위의 ajax)과 달리 이후 과정 전체가 "페이지 이동"으로 진행된다.
              [MSA] 그 필터는 auth-service에 있으므로 상대경로(8080=web, 404)가 아니라
              edge(8000) 주소로 가야 한다. edge가 /oauth2/** 를 auth-service로 라우팅한다. -->
-        <a href="http://localhost:8000/oauth2/authorization/kakao" class="kakao-login-btn"
+        <a href="/oauth2/authorization/kakao" class="kakao-login-btn"
            style="display:block; margin-top:10px; padding:12px 0; text-align:center;
               background:#FEE500; color:rgba(0,0,0,.85); border-radius:6px;
               text-decoration:none; font-weight:bold;">
