@@ -11,15 +11,15 @@ spring:
           # 포과 패턴(/api/**)은 반드시 마지막에 둔다.
           routes:
             - id: auth
-              uri: ${auth.service.url:http://localhost:8082}
+              uri: ${auth-service.url:http://localhost:8082}
               predicates:
                 - Path=/api/auth/**,/api/users/**,/api/tokens/**
             - id: oauth2-login
-              uri: ${auth,service.url:http://localhost:8082}
+              uri: ${auth-service.url:http://localhost:8082}
               predicates:
                 - Path=/oauth2/**,/login/oauth2/**
             - id: board
-              uri: ${board.service.url:http://localhost:8081}
+              uri: ${board-service.url:http://localhost:8081}
               predicates:
                 - Path=/api/**
           # [trusted-proxies]
