@@ -1,6 +1,9 @@
 package com.example.authservice.config;
 
 import com.example.authservice.config.filter.TokenAuthenticationFilter;
+import com.example.authservice.config.oauth2.OAuth2FailureHandler;
+import com.example.authservice.config.oauth2.OAuth2SuccessHandler;
+import com.example.authservice.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +32,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+
     @Value("${web-service.url}")
     private String webServiceUrl;
-    private  final TokenAuthenticationFilter tokenAuthenticationFilter;
+    private final TokenAuthenticationFilter tokenAuthenticationFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -47,10 +55,19 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/tokens/refresh",
                                 "/api/users/oauth-join",
-                                "/api/users/name",
+                                "/api/users/names",
                                 "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(
+                        oauth2 -> oauth2
+                                .userInfoEndpoint(
+                                        userInfo -> userInfo
+                                                .userService(customOAuth2UserService)
+                                )
+                                .successHandler(oAuth2SuccessHandler)
+                                .failureHandler(oAuth2FailureHandler)
                 )
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->  exception
@@ -105,4 +122,5 @@ public class SecurityConfig {
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("status code : " + status + ", message : " + message);
     }
+
 }
