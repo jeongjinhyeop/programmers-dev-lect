@@ -55,6 +55,7 @@ jobs:
               # appleboy/ssh-actions@v1 : "SSH로 원격 서버에 접속해 명령을 실행" 하는 공개 Action
               uses: appleboy/ssh-action@v1
               # with : 그 Action에 넘기는 입력값
+              #TEST
               with:
                 host: ${{ secrets.EC2_HOST }}
                 username: ubuntu
