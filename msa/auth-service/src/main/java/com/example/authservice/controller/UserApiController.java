@@ -6,6 +6,7 @@ import com.example.authservice.domain.entity.User;
 import com.example.authservice.dto.*;
 import com.example.authservice.service.UserService;
 import com.example.authservice.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,13 +24,31 @@ public class UserApiController {
 
     @PostMapping("/join")
     public SignUpResponseDto join(@RequestBody SignUpRequestDto signUpRequestDto) {
-        System.out.println("===== JOIN CONTROLLER 들어옴 =====");
 
         userService.signUp(signUpRequestDto);
 
         return SignUpResponseDto.builder()
                 .url("/users/login")
                 .build();
+    }
+
+    @PostMapping("/oauth-join")
+    public SignInResponseDto oauthJoin(
+            @RequestBody OAuthSignUpRequestDto requestDto,
+            HttpServletResponse response
+    ) {
+
+        SignInResponseDto signInResponseDto = userService.oauthSignUp(requestDto);
+
+        CookieUtil.addCookie(
+                response,
+                CookieUtil.REFRESH_TOKEN_COOKIE,
+                signInResponseDto.getRefreshToken(),
+                (int) jwtProperties.getRefreshTokenValidity().toSeconds()
+        );
+        signInResponseDto.setRefreshToken(null);
+
+        return signInResponseDto;
     }
 
     @PostMapping("/login")
@@ -52,6 +71,18 @@ public class UserApiController {
         return logined;
     }
 
+    @PostMapping("/logout")
+    public LogoutResponseDto logout(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        CookieUtil.deleteCookie(request, response, CookieUtil.REFRESH_TOKEN_COOKIE);
+        return LogoutResponseDto.builder()
+                .url("/users/login")
+                .message("로그아웃이 되었습니다.")
+                .build();
+    }
+
     @GetMapping("/info")
     public UserInfoResponseDto getUserInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         User user = userDetails.getUser();
@@ -66,5 +97,18 @@ public class UserApiController {
     @GetMapping("/names")
     public List<UserNameResponseDto> getUserNames(@RequestParam List<String> userIds) {
         return userService.getUserNames(userIds);
+    }
+
+    @DeleteMapping("/me")
+    public WithDrawResponseDto withdraw(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        WithDrawResponseDto dto = userService.withDraw(userDetails.getUser().getUserId());
+
+        CookieUtil.deleteCookie(request, response, CookieUtil.REFRESH_TOKEN_COOKIE);
+
+        return dto;
     }
 }
